@@ -1,0 +1,9 @@
+RewriteEngine on
+
+# Jika request bukan berupa file asli (seperti css, js, gambar)
+RewriteCond %{REQUEST_FILENAME} !-f
+# Jika request bukan berupa direktori asli
+RewriteCond %{REQUEST_FILENAME} !-d
+
+# Arahkan semua request ke index.php
+RewriteRule . index.php
