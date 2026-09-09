@@ -1,33 +1,38 @@
 <?php
 
-declare(strict_types=1);
-
 /** @var yii\web\View $this */
 /** @var string $name */
 /** @var string $message */
 /** @var Exception $exception */
 
 use yii\helpers\Html;
-use yii\web\HttpException;
+use yii\helpers\Url;
 
 $this->title = $name;
-$statusCode = $exception instanceof HttpException ? $exception->statusCode : 500;
+$statusCode = $exception->statusCode ?? 500;
 ?>
-<div class="site-error d-flex align-items-center justify-content-center text-center">
-    <div class="site-error-content mx-auto">
-        <h1 class="display-1 fw-bold text-body-secondary mb-0"><?= Html::encode($statusCode) ?></h1>
 
-        <h2 class="display-6 fw-semibold mb-3"><?= Html::encode($message) ?></h2>
+<div class="error-page text-center py-5" style="max-width: 580px; margin: 0 auto;">
+    
+    <h2 class="headline font-weight-bold text-<?= $statusCode == 404 ? 'warning' : 'danger' ?>" style="font-size: 5rem;">
+        <?= $statusCode ?>
+    </h2>
 
-        <p class="text-body-secondary mb-4">
-            The above error occurred while the Web server was processing your request.
-            Please contact us if you think this is a server error. Thank you.
+    <div class="error-content mt-3">
+        <h3 class="font-weight-bold text-dark mb-2">
+            <i class="fas fa-exclamation-triangle text-<?= $statusCode == 404 ? 'warning' : 'danger' ?> mr-2"></i>
+            <?= Html::encode($name) ?>
+        </h3>
+
+        <p class="text-muted mb-4 lead font-weight-500">
+            <?= nl2br(Html::encode($message)) ?>
         </p>
 
-        <?= Html::a(
-            'Go to Homepage',
-            Yii::$app->homeUrl,
-            ['class' => 'btn btn-outline-primary btn-lg'],
-        ) ?>
+        <div>
+            <a href="<?= Url::to(['/dashboard/index']) ?>" class="btn btn-primary font-weight-bold px-4 py-2 rounded-pill shadow-xs">
+                <i class="fas fa-arrow-left mr-1"></i> Kembali ke Dashboard
+            </a>
+        </div>
     </div>
+
 </div>
