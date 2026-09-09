@@ -76,6 +76,7 @@ $config = [
                 'profile'   => 'profile/index',
                 'users'     => 'user/index',
                 'settings'  => 'setting/index',
+                'menus'     => 'menu/index',
 
                 // Rule dinamis umum parameter ID
                 '<controller:[\w\-]+>/<id:\d+>' => '<controller>/view',
