@@ -33,25 +33,48 @@ class MenuController extends BaseAdminController
             return $this->asJson(['status' => 'error', 'message' => 'Tidak ada file ikon yang diunggah.']);
         }
 
-        $uploadDir = Yii::getAlias('@webroot/uploads/icons');
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
+        // 1. Validasi Ekstensi yang Diizinkan
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'gif'];
+        $ext = strtolower($file->extension ?: '');
 
-        $fileName = 'icon_' . time() . '_' . rand(100, 999) . '.' . $file->extension;
-        $filePath = $uploadDir . '/' . $fileName;
-
-        if ($file->saveAs($filePath)) {
-            $relativePath = 'uploads/icons/' . $fileName;
+        if (!in_array($ext, $allowedExtensions, true)) {
             return $this->asJson([
-                'status'    => 'success',
-                'message'   => 'Ikon berhasil diunggah!',
-                'iconPath'  => $relativePath,
-                'fullUrl'   => Yii::getAlias('@web/' . $relativePath)
+                'status'  => 'error',
+                'message' => 'Format file ".' . htmlspecialchars($ext) . '" tidak didukung! Format yang diizinkan: JPG, JPEG, PNG, WebP, SVG, GIF.'
             ]);
         }
 
-        return $this->asJson(['status' => 'error', 'message' => 'Gagal menyimpan file ikon.']);
+        // 2. Validasi Batas Ukuran File (Maks. 2 MB)
+        $maxSizeBytes = 2 * 1024 * 1024; // 2 MB
+        if ($file->size > $maxSizeBytes) {
+            return $this->asJson([
+                'status'  => 'error',
+                'message' => 'Ukuran file ikon terlalu besar! Batas maksimal adalah 2 MB.'
+            ]);
+        }
+
+        try {
+            $iconPath = \app\components\StorageManager::executeAtomicUpload(
+                $file,
+                'icons',
+                null,
+                function ($newRelativePath) {
+                    return $newRelativePath;
+                }
+            );
+
+            return $this->asJson([
+                'status'   => 'success',
+                'message'  => 'Ikon berhasil diunggah!',
+                'iconPath' => $iconPath,
+                'fullUrl'  => \app\components\StorageManager::getUrl($iconPath)
+            ]);
+        } catch (\Throwable $e) {
+            return $this->asJson([
+                'status'  => 'error',
+                'message' => 'Gagal mengunggah ikon: ' . $e->getMessage()
+            ]);
+        }
     }
 
     public function actionGetGroups(): Response
@@ -263,6 +286,9 @@ class MenuController extends BaseAdminController
         ]);
     }
 
+    /**
+     * Update Menu Navigasi (Dengan Pembersihan File Sampah Otomatis)
+     */
     public function actionUpdate(int $id): Response
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
@@ -273,20 +299,39 @@ class MenuController extends BaseAdminController
             return $this->asJson(['status' => 'error', 'message' => 'Menu tidak ditemukan']);
         }
 
+        // Simpan path ikon lama untuk pengecekan pembersihan
+        $oldIcon = $menu->icon;
+        $newIcon = !empty($req['icon']) ? trim($req['icon']) : $oldIcon;
+
         $menu->group_id  = (int) ($req['group_id'] ?? $menu->group_id);
         $menu->parent_id = (int) ($req['parent_id'] ?? $menu->parent_id);
         $menu->label     = $req['label'] ?? $menu->label;
         $menu->link      = $req['link'] ?? $menu->link;
-        $menu->icon      = $req['icon'] ?? $menu->icon;
+        $menu->icon      = $newIcon;
         $menu->type      = $req['type'] ?? $menu->type;
         $menu->status    = $req['status'] ?? $menu->status;
         $menu->bind      = isset($req['bind']) ? (int) $req['bind'] : $menu->bind;
 
-        if ($menu->save()) {
-            return $this->asJson(['status' => 'success', 'message' => 'Menu berhasil diperbarui!']);
-        }
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            if ($menu->save()) {
+                $transaction->commit();
 
-        return $this->asJson(['status' => 'error', 'errors' => $menu->getErrors()]);
+                // PEMBERSIHAN FILE SAMPAH:
+                // Jika ikon lama adalah file lokal di storage dan ikon diganti -> Hapus file lama dari disk!
+                if (!empty($oldIcon) && $oldIcon !== $newIcon && \app\components\StorageManager::exists($oldIcon)) {
+                    \app\components\StorageManager::delete($oldIcon);
+                }
+
+                return $this->asJson(['status' => 'success', 'message' => 'Menu berhasil diperbarui!']);
+            }
+
+            $transaction->rollBack();
+            return $this->asJson(['status' => 'error', 'errors' => $menu->getErrors()]);
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            return $this->asJson(['status' => 'error', 'message' => 'Gagal memperbarui menu: ' . $e->getMessage()]);
+        }
     }
 
     public function actionClone(): Response

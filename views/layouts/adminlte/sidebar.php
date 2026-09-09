@@ -5,6 +5,7 @@ use yii\helpers\Html;
 use app\models\User;
 use app\models\Menu;
 use app\models\MenuGroup;
+use app\components\StorageManager;
 
 // 1. Data User Panel
 $userId = Yii::$app->user->id ?? 1;
@@ -33,7 +34,7 @@ $currentAction     = '/' . Yii::$app->controller->id . '/' . Yii::$app->controll
 $currentPath       = '/' . ltrim(Yii::$app->request->pathInfo, '/');
 
 /**
- * Helper: Deteksi & Render Icon (Gambar URL/SVG vs FontAwesome)
+ * HELPER: DETEKSI & RENDER ICON (GAMBAR STORAGE / URL ONLINE / FONTAWESOME)
  */
 $renderNavIcon = function(?string $icon) {
     if (empty($icon)) {
@@ -41,15 +42,27 @@ $renderNavIcon = function(?string $icon) {
     }
 
     $iconTrim = trim($icon);
-    // Cek apakah icon berupa URL gambar, file upload, atau SVG
-    $isImage = preg_match('/^(https?:\/\/|\/|uploads\/|data:image\/).*\.(png|jpg|jpeg|svg|webp|gif|ico)$/i', $iconTrim) 
-               || str_starts_with($iconTrim, 'data:image/') 
-               || preg_match('/^https?:\/\//i', $iconTrim);
 
-    if ($isImage) {
-        return '<img src="' . Html::encode($iconTrim) . '" class="nav-icon" style="width: 1.25rem; height: 1.25rem; object-fit: contain; margin-right: 0.5rem; border-radius: 4px;" alt="Icon">';
+    // 1. Cek apakah file ada di direktori project/storages/...
+    if (StorageManager::exists($iconTrim)) {
+        $imgUrl = StorageManager::getUrl($iconTrim);
+        return '<img src="' . Html::encode($imgUrl) . '" class="nav-icon" style="width: 1.25rem; height: 1.25rem; object-fit: contain; margin-right: 0.55rem; border-radius: 3px; display: inline-block; vertical-align: middle;" alt="icon">';
     }
 
+    // 2. Cek apakah berupa URL eksternal (http/https), Data URI, atau berakhiran ekstensi gambar (.png, .svg, .jpg, dll.)
+    $isImage = preg_match('/^https?:\/\//i', $iconTrim)
+               || str_starts_with($iconTrim, 'data:image/')
+               || preg_match('/\.(png|jpg|jpeg|svg|webp|gif|ico)$/i', $iconTrim);
+
+    if ($isImage) {
+        $imgUrl = (preg_match('/^https?:\/\//i', $iconTrim) || str_starts_with($iconTrim, 'data:image/'))
+            ? $iconTrim
+            : StorageManager::getUrl($iconTrim);
+
+        return '<img src="' . Html::encode($imgUrl) . '" class="nav-icon" style="width: 1.25rem; height: 1.25rem; object-fit: contain; margin-right: 0.55rem; border-radius: 3px; display: inline-block; vertical-align: middle;" alt="icon">';
+    }
+
+    // 3. Render sebagai FontAwesome Icon biasa
     return '<i class="nav-icon ' . Html::encode($iconTrim) . '"></i>';
 };
 
@@ -59,7 +72,7 @@ $renderNavIcon = function(?string $icon) {
 $isItemActive = function($menu) use ($currentController, $currentAction, $currentPath) {
     $link = trim($menu->link);
     if (empty($link) || $link === '#' || preg_match('/^https?:\/\//i', $link)) {
-        return false; // Link eksternal tidak pernah ditandai sebagai internal route aktif
+        return false;
     }
 
     $normalizedLink = '/' . ltrim($link, '/');
@@ -82,7 +95,7 @@ $isTreeActive = function($parentId) use (&$isTreeActive, &$treeMap, $isItemActiv
 };
 
 /**
- * Renderer Rekursif Menu
+ * Renderer Rekursif Menu Sidebar
  */
 $renderMenuTree = function($parentId = 0) use (&$renderMenuTree, &$treeMap, $isItemActive, $isTreeActive, $renderNavIcon) {
     if (!isset($treeMap[$parentId])) return '';
@@ -117,16 +130,14 @@ $renderMenuTree = function($parentId = 0) use (&$renderMenuTree, &$treeMap, $isI
             $html .= '</ul>';
             $html .= '</li>';
         } else {
-            // Single Menu (Internal vs Eksternal)
+            // Single Menu Item
             $isExternal = preg_match('/^(https?:\/\/|mailto:|tel:)/i', $rawLink);
             
             if ($isExternal) {
-                // Link Eksternal -> Buka Tab Baru
                 $url = Html::encode($rawLink);
                 $linkAttr = 'target="_blank" rel="noopener noreferrer"';
                 $externalBadge = ' <i class="fas fa-external-link-alt text-xs ml-1 text-muted" style="font-size: 0.7rem;"></i>';
             } else {
-                // Link Internal Yii2
                 $url = ($rawLink === '#' || empty($rawLink)) ? '#' : Url::to([$rawLink]);
                 $linkAttr = '';
                 $externalBadge = '';

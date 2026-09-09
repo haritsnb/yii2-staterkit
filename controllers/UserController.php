@@ -312,11 +312,26 @@ class UserController extends BaseAdminController
         Yii::$app->response->format = Response::FORMAT_JSON;
         $user = User::findOne($id);
 
-        if ($user && $user->delete()) {
-            return $this->asJson(['status' => 'success', 'message' => 'User BERHASIL DIHAPUS PERMANEN!']);
+        if (!$user) {
+            return $this->asJson(['status' => 'error', 'message' => 'User tidak ditemukan.']);
         }
 
-        return $this->asJson(['status' => 'error', 'message' => 'Gagal menghapus permanen user.']);
+        try {
+            $avatarPath = $user->avatar;
+
+            \app\components\StorageManager::executeAtomicDelete(
+                $avatarPath,
+                function () use ($user) {
+                    if (!$user->delete()) {
+                        throw new \Exception('Gagal menghapus data dari database.');
+                    }
+                }
+            );
+
+            return $this->asJson(['status' => 'success', 'message' => 'User beserta file terkait BERHASIL DIHAPUS PERMANEN!']);
+        } catch (\Throwable $e) {
+            return $this->asJson(['status' => 'error', 'message' => 'Gagal menghapus user: ' . $e->getMessage()]);
+        }
     }
 
     public function actionBulkDelete(): Response

@@ -37,3 +37,4 @@ tests/_support/_generated
 
 # upload folder
 web/uploads/*
+storages/*

@@ -26,8 +26,9 @@ $config = [
         ],
     ],
     'aliases' => [
-        '@bower' => '@vendor/bower-asset',
-        '@npm'   => '@vendor/npm-asset',
+        '@bower'       => '@vendor/bower-asset',
+        '@npm'         => '@vendor/npm-asset',
+        '@storageRoot' => dirname(__DIR__) . '/storages',
     ],
     'components' => [
         'request' => [
@@ -68,6 +69,11 @@ $config = [
             'showScriptName' => false,
             'enableStrictParsing' => false,
             'rules' => [
+                // Route penyedia file dari project/storages/...
+                // 'storages/<path:.*>' => 'storage/file',
+                // Catatan: Pisahkan folder dan filename agar URL `/` tidak di-encode menjadi `%2F`
+                'storages/<folder:[\w\-]+>/<filename:[\w\-\.]+>' => 'storage/file',
+
                 // Shorthand Auth & Menu Utama
                 'login'     => 'auth/login',
                 'register'  => 'auth/register',
@@ -75,8 +81,8 @@ $config = [
                 'dashboard' => 'dashboard/index',
                 'profile'   => 'profile/index',
                 'users'     => 'user/index',
-                'settings'  => 'setting/index',
                 'menus'     => 'menu/index',
+                'settings'  => 'setting/index',
 
                 // Rule dinamis umum parameter ID
                 '<controller:[\w\-]+>/<id:\d+>' => '<controller>/view',
