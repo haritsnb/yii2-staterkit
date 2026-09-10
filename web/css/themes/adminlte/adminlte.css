@@ -1,0 +1,25 @@
+/* ==========================================================================
+   ADMINLTE 3.2.0 - TAILWIND MODERN CLEAN THEME
+   Main Entry Point Stylesheet
+   ========================================================================== */
+
+/* 1. Variabel Desain & Font */
+@import url('./modules/_variables.css');
+
+/* 2. Base Reset & Layout (Body, Content-Wrapper, Footer, Breadcrumb) */
+@import url('./modules/_base.css');
+
+/* 3. Sidebar Modern & Dotted Tree Hierarchy */
+@import url('./modules/_sidebar.css');
+
+/* 4. Navbar & Top Navigation */
+@import url('./modules/_navbar.css');
+
+/* 5. Cards & Containers */
+@import url('./modules/_cards.css');
+
+/* 6. Buttons System (Pure Native Override) */
+@import url('./modules/_buttons.css');
+
+/* 7. UI Components (Forms, Tables, Badges, Modals, Pagination) */
+@import url('./modules/_components.css');

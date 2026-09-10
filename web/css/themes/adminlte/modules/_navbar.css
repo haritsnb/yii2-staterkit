@@ -1,0 +1,70 @@
+/* ==========================================================================
+   MODULE: NAVBAR & HEADER
+   ========================================================================== */
+
+.main-header.navbar {
+  background-color: #ffffff !important;
+  border-bottom: 1px solid var(--tw-slate-200) !important;
+  box-shadow: var(--tw-shadow-sm) !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.main-header .nav-link {
+  color: var(--tw-slate-600) !important;
+  font-size: 0.875rem !important;
+  font-weight: 500;
+  padding: 0.5rem 0.75rem !important;
+  border-radius: var(--tw-radius-md);
+  transition: all 0.15s ease;
+}
+
+.main-header .nav-link:hover {
+  color: var(--tw-slate-900) !important;
+  background-color: var(--tw-slate-100);
+}
+
+/* Search Box Navbar */
+.navbar-search-block .form-control-navbar,
+.navbar-light .form-control-navbar {
+  background-color: var(--tw-slate-100) !important;
+  border: 1px solid transparent !important;
+  border-radius: 9999px !important;
+  font-size: 0.8125rem;
+  padding: 0.45rem 1rem !important;
+}
+.navbar-light .form-control-navbar:focus {
+  background-color: #ffffff !important;
+  border-color: var(--tw-primary) !important;
+  box-shadow: 0 0 0 3px var(--tw-primary-ring) !important;
+}
+
+/* Badge Navbar */
+.navbar-badge {
+  font-size: 0.65rem !important;
+  font-weight: 700;
+  padding: 2px 5px !important;
+  border-radius: 9999px !important;
+  right: 4px !important;
+  top: 6px !important;
+}
+
+/* Modern Floating Dropdown Menu */
+.navbar .dropdown-menu {
+  border: 1px solid var(--tw-slate-200) !important;
+  box-shadow: var(--tw-shadow-lg) !important;
+  border-radius: var(--tw-radius-lg) !important;
+  padding: 0.5rem !important;
+  margin-top: 8px !important;
+  animation: fadeIn 0.15s ease-out;
+}
+.navbar .dropdown-item {
+  font-size: 0.84rem !important;
+  color: var(--tw-slate-700) !important;
+  border-radius: var(--tw-radius-sm);
+  padding: 0.5rem 0.75rem !important;
+  transition: all 0.15s ease;
+}
+.navbar .dropdown-item:hover {
+  background-color: var(--tw-slate-100) !important;
+  color: var(--tw-slate-900) !important;
+}

@@ -39,7 +39,7 @@ class AdminLteAsset extends AssetBundle
         'vendors/adminlte/dist/css/adminlte.min.css',
 
         // 8. CUSTOM CSS THEME ADMINLTE (Diletakkan paling akhir untuk override)
-        // 'css/themes/adminlte/adminlte.css',
+        'css/themes/adminlte/adminlte.css',
     ];
 
     public $js = [
