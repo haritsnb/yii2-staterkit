@@ -6,18 +6,19 @@ use yii\helpers\Url;
 
 $this->title = 'Manajemen Navigasi Menu';
 
-$getGroupsUrl  = Url::to(['/menu/get-groups']);
-$getTreeUrl    = Url::to(['/menu/get-tree']);
-$saveOrderUrl  = Url::to(['/menu/save-order']);
-$listDtUrl     = Url::to(['/menu/list-datatable']);
-$createUrl     = Url::to(['/menu/create']);
-$viewDataUrl   = Url::to(['/menu/view-data']);
-$updateUrl     = Url::to(['/menu/update']);
-$cloneUrl      = Url::to(['/menu/clone']);
-$deleteUrl     = Url::to(['/menu/delete']);
-$uploadIconUrl = Url::to(['/menu/upload-icon']);
+$getGroupsUrl   = Url::to(['/menu/get-groups']);
+$getTreeUrl     = Url::to(['/menu/get-tree']);
+$saveOrderUrl   = Url::to(['/menu/save-order']);
+$listDtUrl      = Url::to(['/menu/list-datatable']);
+$createUrl      = Url::to(['/menu/create']);
+$viewDataUrl    = Url::to(['/menu/view-data']);
+$updateUrl      = Url::to(['/menu/update']);
+$cloneUrl       = Url::to(['/menu/clone']);
+$deleteUrl      = Url::to(['/menu/delete']);
+$uploadIconUrl  = Url::to(['/menu/upload-icon']);
+$getRoutesUrl   = Url::to(['/menu/get-available-routes']);
+$getFaIconsUrl  = Url::to(['/menu/get-fontawesome-icons']);
 
-// Mendaftarkan URL ke JavaScript Variable (Bebas Deprecation Warning PHP 8.2+)
 $this->registerJsVar('menuUrls', [
     'getGroups'  => $getGroupsUrl,
     'getTree'    => $getTreeUrl,
@@ -29,11 +30,13 @@ $this->registerJsVar('menuUrls', [
     'clone'      => $cloneUrl,
     'delete'     => $deleteUrl,
     'uploadIcon' => $uploadIconUrl,
+    'getRoutes'  => $getRoutesUrl,
+    'getFaIcons' => $getFaIconsUrl,
 ]);
 ?>
 
 <style>
-/* Styling Icon DragSort */
+/* DragSort List Styles */
 .ds-list .ds-icon, 
 .ds-list .ds-item-icon {
     display: inline-flex !important;
@@ -53,7 +56,6 @@ $this->registerJsVar('menuUrls', [
     background-color: #007bff;
     color: #ffffff;
 }
-/* Live Icon Preview Box */
 .icon-preview-box {
     width: 38px;
     height: 38px;
@@ -71,10 +73,6 @@ $this->registerJsVar('menuUrls', [
     width: 100%;
     height: 100%;
     object-fit: contain;
-}
-.icon-type-btn-group .btn {
-    font-size: 0.82rem;
-    padding: 6px 12px;
 }
 .current-icon-card {
     border: 1px dashed #b8daff;
@@ -108,7 +106,7 @@ $this->registerJsVar('menuUrls', [
 <section class="content">
     <div class="container-fluid">
 
-        <!-- 1. Filter Pilih Menu Group -->
+        <!-- Filter Pilih Menu Group -->
         <div class="card card-outline card-primary mb-3 shadow-sm">
             <div class="card-body p-3">
                 <div class="row align-items-center">
@@ -132,11 +130,9 @@ $this->registerJsVar('menuUrls', [
             </div>
         </div>
 
-        <!-- 2. CONTAINER DRAGSORT (Tree View) -->
+        <!-- CONTAINER DRAGSORT (Tree View) -->
         <div id="container-dragsort-view">
             <div class="card card-outline card-secondary shadow-sm">
-                
-                <!-- Card Header Rapi & Responsif -->
                 <div class="card-header bg-white py-3 px-4 border-bottom">
                     <div class="row align-items-center">
                         <div class="col-lg-6 col-md-5 mb-2 mb-md-0">
@@ -166,7 +162,6 @@ $this->registerJsVar('menuUrls', [
                         </div>
                     </div>
                 </div>
-
                 <div class="card-body p-4">
                     <ul id="menu-list" class="ds-list">
                         <div class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i> Memuat susunan menu...</div>
@@ -175,7 +170,7 @@ $this->registerJsVar('menuUrls', [
             </div>
         </div>
 
-        <!-- 3. CONTAINER DATATABLE (Grid View) -->
+        <!-- CONTAINER DATATABLE (Grid View) -->
         <div id="container-datatable-view" style="display: none;">
             <div class="card card-outline card-secondary shadow-sm">
                 <div class="card-header bg-white">
@@ -213,12 +208,11 @@ $this->registerJsVar('menuUrls', [
         <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
             <form id="form-menu-crud">
                 <input type="hidden" name="id" id="menu-form-id">
+                <input type="hidden" name="link" id="final-crud-link" value="#">
                 <input type="hidden" name="icon" id="final-crud-icon" value="fas fa-circle">
 
                 <div class="modal-header bg-primary text-white py-3">
-                    <h5 class="modal-title font-weight-bold" id="modal-menu-title">
-                        <i class="fas fa-plus-circle mr-1"></i> Tambah Menu Baru
-                    </h5>
+                    <h5 class="modal-title font-weight-bold" id="modal-menu-title">Tambah Menu Baru</h5>
                     <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
                 </div>
                 <div class="modal-body p-4">
@@ -233,23 +227,44 @@ $this->registerJsVar('menuUrls', [
                                 <option value="0">-- Root Level (Tanpa Induk) --</option>
                             </select>
                         </div>
-                        <div class="col-md-6 form-group">
+                        <div class="col-md-12 form-group">
                             <label class="font-weight-bold small">Label / Nama Menu *</label>
                             <input type="text" name="label" id="input-menu-label" class="form-control" placeholder="Contoh: Dashboard" required>
                         </div>
-                        <div class="col-md-6 form-group">
-                            <label class="font-weight-bold small">Link / URL *</label>
-                            <input type="text" name="link" id="input-menu-link" class="form-control" placeholder="Contoh: /dashboard atau https://instagram.com" required>
+
+                        <!-- ================= 1. INPUT LINK * {select2(routes, url)}{<input>} ================= -->
+                        <div class="col-md-12 form-group mb-3">
+                            <label class="font-weight-bold small text-dark mb-1">Link *</label>
+                            <div class="input-group">
+                                <div class="input-group-prepend" style="width: 32%;">
+                                    <select id="select-crud-link-type" class="form-control select2" style="width: 100%;">
+                                        <option value="routes">Routes (Internal)</option>
+                                        <option value="url">URL (Eksternal)</option>
+                                    </select>
+                                </div>
+                                
+                                <!-- Input Mode Routes -->
+                                <div id="wrapper-crud-link-routes" class="flex-grow-1 ml-1" style="width: 65%;">
+                                    <select id="select-crud-link-routes" class="form-control select2" style="width: 100%;"></select>
+                                </div>
+                                
+                                <!-- Input Mode URL Eksternal -->
+                                <div id="wrapper-crud-link-url" class="flex-grow-1 ml-1" style="display: none; width: 65%;">
+                                    <input type="text" id="input-crud-link-url" class="form-control" placeholder="https://instagram.com/profil_anda">
+                                </div>
+                            </div>
+                            <small class="text-muted" id="hint-crud-link">Pilih rute internal aplikasi yang tersedia.</small>
                         </div>
 
-                        <!-- ================= AREA IKON MENU ================= -->
+                        <!-- ================= 2. INPUT ICON * {select2(symbol, url, upload)}{<input>} ================= -->
                         <div class="col-md-12 mb-3">
-                            
-                            <!-- 1. Tampilan Ikon Saat Ini (Mode Edit) -->
+                            <label class="font-weight-bold small text-dark mb-1">Icon *</label>
+
+                            <!-- Kotak Ikon Saat Ini (Mode Edit) -->
                             <div id="container-current-icon" class="current-icon-card p-3 mb-0" style="display: none;">
                                 <div class="d-flex justify-content-between align-items-center flex-wrap">
                                     <div class="d-flex align-items-center">
-                                        <div class="icon-preview-box mr-3 shadow-xs bg-white" id="display-current-icon-box" style="width: 44px; height: 44px;">
+                                        <div class="icon-preview-box mr-3 shadow-xs bg-white" id="display-current-icon-box">
                                             <i class="fas fa-circle"></i>
                                         </div>
                                         <div>
@@ -259,76 +274,56 @@ $this->registerJsVar('menuUrls', [
                                     </div>
                                     <div class="mt-2 mt-sm-0">
                                         <button type="button" class="btn btn-outline-primary btn-sm font-weight-bold shadow-xs px-3" id="btn-toggle-change-icon">
-                                            <i class="fas fa-edit mr-1"></i> Ubah / Ganti Ikon
+                                            <i class="fas fa-edit mr-1"></i> Ganti Icon
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- 2. Form Pemilih Ikon Baru -->
+                            <!-- Form Pemilih Ikon Baru {select2(symbol, url, upload)}{<input>} -->
                             <div id="container-icon-picker" class="card card-outline card-info p-3 mb-0 shadow-xs" style="display: none;">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
-                                    <label class="font-weight-bold small text-dark mb-0">
-                                        <i class="fas fa-icons text-primary mr-1"></i> Pilih Sumber / Jenis Ikon Baru:
-                                    </label>
+                                    <label class="font-weight-bold small text-dark mb-0">Pilih Format Ikon Baru:</label>
                                     <button type="button" class="btn btn-link btn-xs text-danger font-weight-bold p-0" id="btn-cancel-change-icon" style="display: none;">
-                                        <i class="fas fa-times-circle mr-1"></i> Batal / Tutup (Gunakan Ikon Semula)
+                                        <i class="fas fa-times-circle mr-1"></i> Batal Mengganti Icon
                                     </button>
                                 </div>
 
-                                <div class="btn-group btn-group-toggle w-100 icon-type-btn-group shadow-xs mb-3" data-toggle="buttons">
-                                    <label class="btn btn-outline-primary active font-weight-bold" id="lbl-crud-font">
-                                        <input type="radio" name="crud_icon_type" value="font_icon" checked>
-                                        <i class="fas fa-font mr-1"></i> Simbol (FontAwesome)
-                                    </label>
-                                    <label class="btn btn-outline-primary font-weight-bold" id="lbl-crud-url">
-                                        <input type="radio" name="crud_icon_type" value="image_url">
-                                        <i class="fas fa-link mr-1"></i> Tautan Gambar
-                                    </label>
-                                    <label class="btn btn-outline-primary font-weight-bold" id="lbl-crud-upload">
-                                        <input type="radio" name="crud_icon_type" value="upload_file">
-                                        <i class="fas fa-upload mr-1"></i> Unggah File
-                                    </label>
-                                </div>
-
-                                <!-- Panel 1: FontAwesome -->
-                                <div class="crud-icon-panel" id="panel-crud-font">
-                                    <label class="font-weight-bold small text-secondary">Kelas Ikon FontAwesome</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <div class="icon-preview-box" id="preview-crud-font"><i class="fas fa-circle"></i></div>
-                                        </div>
-                                        <input type="text" id="input-crud-font-class" class="form-control ml-1" placeholder="Contoh: fas fa-tachometer-alt, fab fa-instagram">
+                                <div class="input-group">
+                                    <div class="input-group-prepend" style="width: 32%;">
+                                        <select id="select-crud-icon-type" class="form-control select2" style="width: 100%;">
+                                            <option value="symbol">Symbol (FontAwesome)</option>
+                                            <option value="url">URL (Gambar Online)</option>
+                                            <option value="upload">Upload (Dari Komputer)</option>
+                                        </select>
                                     </div>
-                                    <small class="text-muted mt-1 d-block">Ketik kelas FontAwesome 5.</small>
-                                </div>
 
-                                <!-- Panel 2: URL Gambar -->
-                                <div class="crud-icon-panel" id="panel-crud-url" style="display: none;">
-                                    <label class="font-weight-bold small text-secondary">URL Gambar Online (PNG / SVG / JPG)</label>
-                                    <div class="input-group">
-                                        <div class="input-group-prepend">
-                                            <div class="icon-preview-box" id="preview-crud-url"><i class="fas fa-image"></i></div>
-                                        </div>
-                                        <input type="text" id="input-crud-image-url" class="form-control ml-1" placeholder="Contoh: https://example.com/icons/logo.png">
+                                    <!-- Panel 1: Select2 Symbol FontAwesome Visual -->
+                                    <div id="wrapper-crud-icon-symbol" class="flex-grow-1 ml-1" style="width: 65%;">
+                                        <select id="select-crud-icon-symbol" class="form-control select2" style="width: 100%;"></select>
                                     </div>
-                                    <small class="text-muted mt-1 d-block">Masukkan tautan langsung gambar.</small>
-                                </div>
 
-                                <!-- Panel 3: Unggah File Baru (Clean & Kosong Saat Dibuka) -->
-                                <div class="crud-icon-panel" id="panel-crud-upload" style="display: none;">
-                                    <label class="font-weight-bold small text-secondary">Pilih File Ikon Baru (PNG, SVG, JPG, WebP, GIF)</label>
-                                    <div class="d-flex align-items-center">
-                                        <div class="icon-preview-box mr-2" id="preview-crud-upload"><i class="fas fa-file-image"></i></div>
-                                        <div class="custom-file flex-grow-1">
-                                            <input type="file" class="custom-file-input" id="file-crud-upload" accept="image/png, image/svg+xml, image/jpeg, image/webp, image/gif, image/x-icon">
-                                            <label class="custom-file-label text-truncate" id="label-crud-upload" for="file-crud-upload">Pilih file ikon baru...</label>
+                                    <!-- Panel 2: Input URL Gambar Online -->
+                                    <div id="wrapper-crud-icon-url" class="flex-grow-1 ml-1" style="display: none; width: 65%;">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-preview-box mr-1" id="preview-crud-url"><i class="fas fa-image"></i></div>
+                                            <input type="text" id="input-crud-icon-url" class="form-control" placeholder="https://example.com/logo.png">
                                         </div>
                                     </div>
-                                    <small class="text-muted mt-1 d-block">File baru akan otomatis diunggah ke folder penyimpanan.</small>
+
+                                    <!-- Panel 3: Upload File -->
+                                    <div id="wrapper-crud-icon-upload" class="flex-grow-1 ml-1" style="display: none; width: 65%;">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-preview-box mr-2" id="preview-crud-upload"><i class="fas fa-file-image"></i></div>
+                                            <div class="custom-file flex-grow-1">
+                                                <input type="file" class="custom-file-input" id="file-crud-upload" accept="image/png, image/svg+xml, image/jpeg, image/webp, image/gif, image/x-icon">
+                                                <label class="custom-file-label text-truncate" id="label-crud-upload" for="file-crud-upload">Pilih file ikon...</label>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
+                                <small class="text-muted mt-1" id="hint-crud-icon">Pilih simbol grafis FontAwesome dari daftar visual.</small>
                             </div>
-
                         </div>
 
                         <!-- Tipe & Status -->
@@ -372,6 +367,7 @@ $this->registerJsVar('menuUrls', [
     <div class="modal-dialog modal-lg modal-dialog-centered">
         <div class="modal-content shadow-lg border-0" style="border-radius: 16px;">
             <form id="form-clone-submit">
+                <input type="hidden" name="link" id="final-clone-link" value="#">
                 <input type="hidden" name="icon" id="final-clone-icon" value="fas fa-circle">
 
                 <div class="modal-header bg-success text-white py-3">
@@ -400,72 +396,70 @@ $this->registerJsVar('menuUrls', [
                                 <option value="0">-- Root Level --</option>
                             </select>
                         </div>
-                        <div class="col-md-6 form-group">
+                        <div class="col-md-12 form-group">
                             <label class="font-weight-bold small">Label Baru *</label>
                             <input type="text" name="label" id="clone-input-label" class="form-control" required>
                         </div>
-                        <div class="col-md-6 form-group">
-                            <label class="font-weight-bold small">Link / URL *</label>
-                            <input type="text" name="link" id="clone-input-link" class="form-control" required>
-                        </div>
 
-                        <!-- Ikon pada Modal Clone -->
-                        <div class="col-md-12 form-group mb-2">
-                            <label class="font-weight-bold small text-dark d-block">
-                                <i class="fas fa-icons text-success mr-1"></i> Sumber Ikon Menu Clone:
-                            </label>
-                            <div class="btn-group btn-group-toggle w-100 icon-type-btn-group shadow-xs" data-toggle="buttons">
-                                <label class="btn btn-outline-success active font-weight-bold btn-sm" id="lbl-clone-font">
-                                    <input type="radio" name="clone_icon_type" value="font_icon" checked>
-                                    <i class="fas fa-font mr-1"></i> Simbol (FontAwesome)
-                                </label>
-                                <label class="btn btn-outline-success font-weight-bold btn-sm" id="lbl-clone-url">
-                                    <input type="radio" name="clone_icon_type" value="image_url">
-                                    <i class="fas fa-link mr-1"></i> Tautan Gambar
-                                </label>
-                                <label class="btn btn-outline-success font-weight-bold btn-sm" id="lbl-clone-upload">
-                                    <input type="radio" name="clone_icon_type" value="upload_file">
-                                    <i class="fas fa-upload mr-1"></i> Unggah File
-                                </label>
-                            </div>
-                        </div>
-
-                        <div class="col-md-12 form-group clone-icon-panel" id="panel-clone-font">
+                        <!-- Link Clone {select2(routes, url)}{<input>} -->
+                        <div class="col-md-12 form-group mb-3">
+                            <label class="font-weight-bold small text-dark mb-1">Link *</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="icon-preview-box" id="preview-clone-font"><i class="fas fa-circle"></i></div>
+                                <div class="input-group-prepend" style="width: 32%;">
+                                    <select id="select-clone-link-type" class="form-control select2" style="width: 100%;">
+                                        <option value="routes">Routes (Internal)</option>
+                                        <option value="url">URL (Eksternal)</option>
+                                    </select>
                                 </div>
-                                <input type="text" id="input-clone-font-class" class="form-control ml-1" placeholder="Contoh: fas fa-circle">
+                                <div id="wrapper-clone-link-routes" class="flex-grow-1 ml-1" style="width: 65%;">
+                                    <select id="select-clone-link-routes" class="form-control select2" style="width: 100%;"></select>
+                                </div>
+                                <div id="wrapper-clone-link-url" class="flex-grow-1 ml-1" style="display: none; width: 65%;">
+                                    <input type="text" id="input-clone-link-url" class="form-control" placeholder="https://example.com">
+                                </div>
                             </div>
                         </div>
 
-                        <div class="col-md-12 form-group clone-icon-panel" id="panel-clone-url" style="display: none;">
+                        <!-- Icon Clone {select2(symbol, url, upload)}{<input>} -->
+                        <div class="col-md-12 form-group mb-3">
+                            <label class="font-weight-bold small text-dark mb-1">Icon *</label>
                             <div class="input-group">
-                                <div class="input-group-prepend">
-                                    <div class="icon-preview-box" id="preview-clone-url"><i class="fas fa-image"></i></div>
+                                <div class="input-group-prepend" style="width: 32%;">
+                                    <select id="select-clone-icon-type" class="form-control select2" style="width: 100%;">
+                                        <option value="symbol">Symbol (FontAwesome)</option>
+                                        <option value="url">URL (Gambar Online)</option>
+                                        <option value="upload">Upload (Dari Komputer)</option>
+                                    </select>
                                 </div>
-                                <input type="text" id="input-clone-image-url" class="form-control ml-1" placeholder="Contoh: https://example.com/icon.png">
+                                <div id="wrapper-clone-icon-symbol" class="flex-grow-1 ml-1" style="width: 65%;">
+                                    <select id="select-clone-icon-symbol" class="form-control select2" style="width: 100%;"></select>
+                                </div>
+                                <div id="wrapper-clone-icon-url" class="flex-grow-1 ml-1" style="display: none; width: 65%;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-preview-box mr-1" id="preview-clone-url"><i class="fas fa-image"></i></div>
+                                        <input type="text" id="input-clone-icon-url" class="form-control" placeholder="https://example.com/logo.png">
+                                    </div>
+                                </div>
+                                <div id="wrapper-clone-icon-upload" class="flex-grow-1 ml-1" style="display: none; width: 65%;">
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-preview-box mr-2" id="preview-clone-upload"><i class="fas fa-file-image"></i></div>
+                                        <div class="custom-file flex-grow-1">
+                                            <input type="file" class="custom-file-input" id="file-clone-upload" accept="image/png, image/svg+xml, image/jpeg, image/webp, image/gif, image/x-icon">
+                                            <label class="custom-file-label text-truncate" id="label-clone-upload" for="file-clone-upload">Pilih file ikon...</label>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="col-md-12 form-group clone-icon-panel" id="panel-clone-upload" style="display: none;">
-                            <div class="d-flex align-items-center">
-                                <div class="icon-preview-box mr-2" id="preview-clone-upload"><i class="fas fa-file-image"></i></div>
-                                <div class="custom-file flex-grow-1">
-                                    <input type="file" class="custom-file-input" id="file-clone-upload" accept="image/png, image/svg+xml, image/jpeg, image/webp, image/gif, image/x-icon">
-                                    <label class="custom-file-label text-truncate" id="label-clone-upload" for="file-clone-upload">Pilih file ikon...</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="col-md-3 form-group mt-2">
+                        <div class="col-md-3 form-group">
                             <label class="font-weight-bold small">Tipe</label>
                             <select name="type" id="clone-input-type" class="form-control select2" style="width: 100%;">
                                 <option value="url">URL</option>
                                 <option value="text">Text</option>
                             </select>
                         </div>
-                        <div class="col-md-3 form-group mt-2">
+                        <div class="col-md-3 form-group">
                             <label class="font-weight-bold small">Status</label>
                             <select name="status" id="clone-input-status" class="form-control select2" style="width: 100%;">
                                 <option value="active">Active</option>
@@ -474,7 +468,7 @@ $this->registerJsVar('menuUrls', [
                         </div>
                     </div>
                     <div class="alert alert-info py-2 small mb-0">
-                        <i class="fas fa-info-circle mr-1"></i> Menu baru hasil clone akan otomatis ditempatkan pada <strong>urutan paling akhir</strong>.
+                        <i class="fas fa-info-circle mr-1"></i> Menu hasil clone akan otomatis ditempatkan pada <strong>urutan paling akhir</strong>.
                     </div>
                 </div>
                 <div class="modal-footer bg-light py-2">
@@ -495,11 +489,20 @@ $this->registerJs(<<<'JS'
     let menusDataTable = null;
     let currentSelectedGroupId = 2;
     let cachedFlatMenus = [];
-    
-    // Variabel penyimpan nilai ikon asli saat modal edit dibuka
     let originalEditIcon = 'fas fa-circle';
 
     toastr.options = { closeButton: true, progressBar: true, positionClass: "toast-top-right", timeOut: "3000" };
+
+    // Custom Template FontAwesome Visual Dropdown Select2
+    function formatFaOption(opt) {
+        if (!opt.id) return opt.text;
+        return $(`<span><i class="${opt.id} mr-2 text-primary" style="width: 22px; text-align: center; font-size: 1.05rem;"></i> ${opt.text}</span>`);
+    }
+
+    function formatFaSelection(opt) {
+        if (!opt.id) return opt.text;
+        return $(`<span><i class="${opt.id} mr-2 text-primary"></i> ${opt.text}</span>`);
+    }
 
     $('.select2').select2({ theme: 'bootstrap4' });
     $('#modal-menu-form, #modal-clone-menu').on('shown.bs.modal', function () {
@@ -534,7 +537,6 @@ $this->registerJs(<<<'JS'
 
             if (itemData && itemData.icon) {
                 const iconTrim = itemData.icon.trim();
-
                 let $iconEl = $item.find('.ds-icon, .ds-item-icon, .ds-handle-icon, [data-ds-icon]');
                 if ($iconEl.length === 0) {
                     $iconEl = $item.find('span, div').filter(function() {
@@ -555,6 +557,20 @@ $this->registerJs(<<<'JS'
         });
     }
 
+    function renderPreviewHtml(targetSelector, iconValue) {
+        const val = (iconValue || '').trim();
+        if (!val) {
+            $(targetSelector).html('<i class="fas fa-circle"></i>');
+            return;
+        }
+        if (isImageString(val)) {
+            const imgUrl = resolveImageUrl(val);
+            $(targetSelector).html(`<img src="${imgUrl}" alt="icon">`);
+        } else {
+            $(targetSelector).html(`<i class="${val}"></i>`);
+        }
+    }
+
     function validateIconFile(file) {
         if (!file) return false;
         const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'gif', 'ico'];
@@ -571,57 +587,127 @@ $this->registerJs(<<<'JS'
         return true;
     }
 
-    function renderPreviewHtml(targetSelector, iconValue) {
-        const val = (iconValue || '').trim();
-        if (!val) {
-            $(targetSelector).html('<i class="fas fa-circle"></i>');
-            return;
-        }
-        if (isImageString(val)) {
-            const imgUrl = resolveImageUrl(val);
-            $(targetSelector).html(`<img src="${imgUrl}" alt="icon">`);
-        } else {
-            $(targetSelector).html(`<i class="${val}"></i>`);
-        }
+    // Load Routes & FontAwesome Dropdown Options
+    function loadRoutesAndIconsOptions() {
+        $.ajax({
+            url: menuUrls.getRoutes,
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (res.status === 'success') {
+                    let opts = '';
+                    $.each(res.data, function(i, r) {
+                        opts += `<option value="${r.id}">${r.name}</option>`;
+                    });
+                    $('#select-crud-link-routes, #select-clone-link-routes').html(opts);
+                }
+            }
+        });
+
+        $.ajax({
+            url: menuUrls.getFaIcons,
+            type: 'GET',
+            dataType: 'json',
+            success: function(res) {
+                if (res.status === 'success') {
+                    let opts = '';
+                    $.each(res.data, function(i, fa) {
+                        opts += `<option value="${fa.id}">${fa.name}</option>`;
+                    });
+                    $('#select-crud-icon-symbol, #select-clone-icon-symbol').html(opts).select2({
+                        theme: 'bootstrap4',
+                        templateResult: formatFaOption,
+                        templateSelection: formatFaSelection
+                    });
+                }
+            }
+        });
     }
 
-    // ================= SAKELAR OPSI IKON (CRUD MODAL) =================
-    $('input[name="crud_icon_type"]').on('change', function() {
+    // ================= SAKELAR INPUT LINK {select2(routes, url)}{<input>} =================
+    $('#select-crud-link-type').on('change', function() {
         const type = $(this).val();
-        $('.crud-icon-panel').hide();
-
-        if (type === 'font_icon') {
-            $('#panel-crud-font').fadeIn(150);
-            const val = $('#input-crud-font-class').val().trim();
-            if (val) $('#final-crud-icon').val(val);
-        } else if (type === 'image_url') {
-            $('#panel-crud-url').fadeIn(150);
-            const val = $('#input-crud-image-url').val().trim();
-            if (val) $('#final-crud-icon').val(val);
-        } else if (type === 'upload_file') {
-            $('#panel-crud-upload').fadeIn(150);
+        if (type === 'routes') {
+            $('#wrapper-crud-link-routes').show();
+            $('#wrapper-crud-link-url').hide();
+            $('#final-crud-link').val($('#select-crud-link-routes').val() || '/dashboard');
+            $('#hint-crud-link').text('Pilih rute internal aplikasi yang tersedia.');
+        } else {
+            $('#wrapper-crud-link-routes').hide();
+            $('#wrapper-crud-link-url').show();
+            $('#final-crud-link').val($('#input-crud-link-url').val().trim() || 'https://');
+            $('#hint-crud-link').text('Masukkan tautan URL eksternal (contoh: https://instagram.com/akun).');
         }
     });
 
-    $('#input-crud-font-class').on('input', function() {
-        const val = $(this).val().trim();
-        if (val) {
-            $('#preview-crud-font').html(`<i class="${val}"></i>`);
-            $('#final-crud-icon').val(val);
-        } else {
-            $('#preview-crud-font').html('<i class="fas fa-circle"></i>');
-            $('#final-crud-icon').val(originalEditIcon);
+    $('#select-crud-link-routes').on('change', function() {
+        if ($('#select-crud-link-type').val() === 'routes') {
+            $('#final-crud-link').val($(this).val());
         }
     });
 
-    $('#input-crud-image-url').on('input', function() {
-        const val = $(this).val().trim();
-        if (val) {
-            renderPreviewHtml('#preview-crud-url', val);
-            $('#final-crud-icon').val(val);
+    $('#input-crud-link-url').on('input', function() {
+        if ($('#select-crud-link-type').val() === 'url') {
+            $('#final-crud-link').val($(this).val().trim());
+        }
+    });
+
+    // Sakelar Link pada Clone Modal
+    $('#select-clone-link-type').on('change', function() {
+        const type = $(this).val();
+        if (type === 'routes') {
+            $('#wrapper-clone-link-routes').show();
+            $('#wrapper-clone-link-url').hide();
+            $('#final-clone-link').val($('#select-clone-link-routes').val() || '/dashboard');
         } else {
-            $('#preview-crud-url').html('<i class="fas fa-image"></i>');
-            $('#final-crud-icon').val(originalEditIcon);
+            $('#wrapper-clone-link-routes').hide();
+            $('#wrapper-clone-link-url').show();
+            $('#final-clone-link').val($('#input-clone-link-url').val().trim() || 'https://');
+        }
+    });
+
+    $('#select-clone-link-routes').on('change', function() {
+        if ($('#select-clone-link-type').val() === 'routes') {
+            $('#final-clone-link').val($(this).val());
+        }
+    });
+
+    $('#input-clone-link-url').on('input', function() {
+        if ($('#select-clone-link-type').val() === 'url') {
+            $('#final-clone-link').val($(this).val().trim());
+        }
+    });
+
+    // ================= SAKELAR INPUT ICON {select2(symbol, url, upload)}{<input>} =================
+    $('#select-crud-icon-type').on('change', function() {
+        const type = $(this).val();
+        $('#wrapper-crud-icon-symbol, #wrapper-crud-icon-url, #wrapper-crud-icon-upload').hide();
+
+        if (type === 'symbol') {
+            $('#wrapper-crud-icon-symbol').show();
+            $('#final-crud-icon').val($('#select-crud-icon-symbol').val() || 'fas fa-circle');
+            $('#hint-crud-icon').text('Pilih simbol grafis FontAwesome dari daftar visual.');
+        } else if (type === 'url') {
+            $('#wrapper-crud-icon-url').show();
+            $('#final-crud-icon').val($('#input-crud-icon-url').val().trim());
+            $('#hint-crud-icon').text('Masukkan tautan langsung gambar/logo online.');
+        } else if (type === 'upload') {
+            $('#wrapper-crud-icon-upload').show();
+            $('#hint-crud-icon').text('Unggah file gambar dari komputer (PNG, SVG, JPG, WebP).');
+        }
+    });
+
+    $('#select-crud-icon-symbol').on('change', function() {
+        if ($('#select-crud-icon-type').val() === 'symbol') {
+            $('#final-crud-icon').val($(this).val());
+        }
+    });
+
+    $('#input-crud-icon-url').on('input', function() {
+        const val = $(this).val().trim();
+        renderPreviewHtml('#preview-crud-url', val);
+        if ($('#select-crud-icon-type').val() === 'url') {
+            $('#final-crud-icon').val(val || 'fas fa-circle');
         }
     });
 
@@ -631,7 +717,7 @@ $this->registerJs(<<<'JS'
 
         if (!validateIconFile(file)) {
             $(this).val('');
-            $('#label-crud-upload').text('Pilih file ikon baru...');
+            $('#label-crud-upload').text('Pilih file ikon...');
             return;
         }
 
@@ -654,80 +740,61 @@ $this->registerJs(<<<'JS'
                     $('#preview-crud-upload').html(`<img src="${res.fullUrl}" alt="icon">`);
                 } else {
                     toastr.error(res.message);
-                    $('#file-crud-upload').val('');
-                    $('#label-crud-upload').text('Pilih file ikon baru...');
                 }
-            },
-            error: function() {
-                toastr.error('Gagal mengunggah file ikon.');
-                $('#file-crud-upload').val('');
-                $('#label-crud-upload').text('Pilih file ikon baru...');
             }
         });
     });
 
-    // ================= INTERAKSI TOGGLE / UBAH IKON & BATAL =================
-    
-    // Klik "Ubah / Ganti Ikon" -> Buka form picker yang BERSIH
+    // Toggle Ganti Icon & Batal Mengganti Icon pada Mode Edit
     $('#btn-toggle-change-icon').on('click', function() {
         $('#container-current-icon').slideUp(150);
         $('#container-icon-picker').slideDown(200);
         $('#btn-cancel-change-icon').show();
 
-        // Bersihkan seluruh input picker agar bersih & siap dipilih
-        $('#input-crud-font-class').val('');
-        $('#preview-crud-font').html('<i class="fas fa-circle"></i>');
-        $('#input-crud-image-url').val('');
+        // Bersihkan input picker saat dibuka
+        $('#select-crud-icon-type').val('symbol').trigger('change');
+        $('#input-crud-icon-url').val('');
         $('#preview-crud-url').html('<i class="fas fa-image"></i>');
         $('#file-crud-upload').val('');
         $('#label-crud-upload').text('Pilih file ikon baru...');
         $('#preview-crud-upload').html('<i class="fas fa-file-image"></i>');
-
-        // Buka panel default (FontAwesome) tanpa mengubah nilai final
-        $('#lbl-crud-font').click();
     });
 
-    // Klik "Batal / Tutup" -> Kembalikan ke ikon semula
     $('#btn-cancel-change-icon').on('click', function() {
         $('#final-crud-icon').val(originalEditIcon);
-        
-        $('#input-crud-font-class').val('');
-        $('#input-crud-image-url').val('');
-        $('#file-crud-upload').val('');
-        $('#label-crud-upload').text('Pilih file ikon baru...');
-
         $('#container-icon-picker').slideUp(150);
         $('#container-current-icon').slideDown(200);
-
         toastr.info('Perubahan ikon dibatalkan. Menggunakan ikon semula.');
     });
 
-    // ================= SAKELAR OPSI IKON (CLONE MODAL) =================
-    $('input[name="clone_icon_type"]').on('change', function() {
+    // Sakelar Icon pada Modal Clone
+    $('#select-clone-icon-type').on('change', function() {
         const type = $(this).val();
-        $('.clone-icon-panel').hide();
+        $('#wrapper-clone-icon-symbol, #wrapper-clone-icon-url, #wrapper-clone-icon-upload').hide();
 
-        if (type === 'font_icon') {
-            $('#panel-clone-font').fadeIn(150);
-            $('#final-clone-icon').val($('#input-clone-font-class').val().trim() || 'fas fa-circle');
-        } else if (type === 'image_url') {
-            $('#panel-clone-url').fadeIn(150);
-            $('#final-clone-icon').val($('#input-clone-image-url').val().trim());
-        } else if (type === 'upload_file') {
-            $('#panel-clone-upload').fadeIn(150);
+        if (type === 'symbol') {
+            $('#wrapper-clone-icon-symbol').show();
+            $('#final-clone-icon').val($('#select-clone-icon-symbol').val() || 'fas fa-circle');
+        } else if (type === 'url') {
+            $('#wrapper-clone-icon-url').show();
+            $('#final-clone-icon').val($('#input-clone-icon-url').val().trim());
+        } else if (type === 'upload') {
+            $('#wrapper-clone-icon-upload').show();
         }
     });
 
-    $('#input-clone-font-class').on('input', function() {
-        const val = $(this).val().trim() || 'fas fa-circle';
-        $('#preview-clone-font').html(`<i class="${val}"></i>`);
-        $('#final-clone-icon').val(val);
+    $('#select-clone-icon-symbol').on('change', function() {
+        if ($('#select-clone-icon-type').val() === 'symbol') {
+            $('#final-clone-icon').val($(this).val());
+        }
     });
 
-    $('#input-clone-image-url').on('input', function() {
+    $('#input-clone-icon-url').on('input', function() {
         const val = $(this).val().trim();
         renderPreviewHtml('#preview-clone-url', val);
-        $('#final-clone-icon').val(val);
+        if ($('#select-clone-icon-type').val() === 'url') {
+            $('#final-clone-icon').val(val || 'fas fa-circle');
+        }
     });
 
     $('#file-clone-upload').on('change', function() {
@@ -759,8 +826,6 @@ $this->registerJs(<<<'JS'
                     $('#preview-clone-upload').html(`<img src="${res.fullUrl}" alt="icon">`);
                 } else {
                     toastr.error(res.message);
-                    $('#file-clone-upload').val('');
-                    $('#label-clone-upload').text('Pilih file ikon...');
                 }
             }
         });
@@ -786,7 +851,7 @@ $this->registerJs(<<<'JS'
         });
     }
 
-    // 2. Inisialisasi & Render Plugin DragSort
+    // 2. Inisialisasi Plugin DragSort
     function initDragSortTree(treeData) {
         cachedFlatMenus = treeData;
 
@@ -821,7 +886,6 @@ $this->registerJs(<<<'JS'
         formatDragSortIcons();
     }
 
-    // 3. Load Data Tree dari Server
     function loadTreeData() {
         $('#menu-list').html('<div class="text-center py-4 text-muted"><i class="fas fa-spinner fa-spin fa-2x"></i> Memuat susunan menu...</div>');
 
@@ -837,7 +901,6 @@ $this->registerJs(<<<'JS'
         });
     }
 
-    // 4. Simpan Urutan DragSort ke Database (AJAX)
     function saveMenuOrderAjax(orderData) {
         toastr.info('Menyimpan urutan menu...');
         $.ajax({
@@ -855,14 +918,10 @@ $this->registerJs(<<<'JS'
                 } else {
                     toastr.error(res.message);
                 }
-            },
-            error: function() {
-                toastr.error('Gagal menyimpan urutan menu ke server.');
             }
         });
     }
 
-    // 5. Inisialisasi DataTables Server-Side
     function initDataTable() {
         menusDataTable = $('#table-menus-dt').DataTable({
             processing: true,
@@ -898,14 +957,12 @@ $this->registerJs(<<<'JS'
         });
     }
 
-    // Ganti Group Aktif
     $('#select-menu-group').on('change', function() {
         currentSelectedGroupId = $(this).val();
         loadTreeData();
         if (menusDataTable) menusDataTable.ajax.reload();
     });
 
-    // Toggle View Mode
     $('#view-mode-dragsort').on('click', function() {
         $('#container-datatable-view').hide();
         $('#container-dragsort-view').fadeIn(200);
@@ -915,14 +972,10 @@ $this->registerJs(<<<'JS'
     $('#view-mode-datatable').on('click', function() {
         $('#container-dragsort-view').hide();
         $('#container-datatable-view').fadeIn(200);
-        if (!menusDataTable) {
-            initDataTable();
-        } else {
-            menusDataTable.ajax.reload();
-        }
+        if (!menusDataTable) initDataTable();
+        else menusDataTable.ajax.reload();
     });
 
-    // Controls DragSort
     $('#btn-collapse-all').on('click', function() { if (dsInstance) { dsInstance.collapseAll(); formatDragSortIcons(); } });
     $('#btn-expand-all').on('click', function() { if (dsInstance) { dsInstance.expandAll(); formatDragSortIcons(); } });
     $('#indent-slider').on('input', function() {
@@ -935,15 +988,20 @@ $this->registerJs(<<<'JS'
     $('#btn-open-create-modal').on('click', function() {
         $('#form-menu-crud')[0].reset();
         $('#menu-form-id').val('');
-        $('#modal-menu-title').html('<i class="fas fa-plus-circle mr-1"></i> Tambah Menu Baru');
+        $('#modal-menu-title').text('Tambah Menu Baru');
 
+        // Form Link Reset
+        $('#select-crud-link-type').val('routes').trigger('change');
+        $('#select-crud-link-routes').val('/dashboard').trigger('change.select2');
+        $('#final-crud-link').val('/dashboard');
+
+        // Form Icon Reset (Mode Tambah: Langsung Tampilkan Picker Bersih)
         $('#container-current-icon').hide();
         $('#container-icon-picker').show();
         $('#btn-cancel-change-icon').hide();
 
-        $('#lbl-crud-font').click();
-        $('#input-crud-font-class').val('fas fa-circle');
-        $('#preview-crud-font').html('<i class="fas fa-circle"></i>');
+        $('#select-crud-icon-type').val('symbol').trigger('change');
+        $('#select-crud-icon-symbol').val('fas fa-circle').trigger('change.select2');
         $('#final-crud-icon').val('fas fa-circle');
 
         $('#input-menu-group').val(currentSelectedGroupId).trigger('change.select2');
@@ -966,21 +1024,30 @@ $this->registerJs(<<<'JS'
                 if (res.status === 'success') {
                     const d = res.data;
                     $('#menu-form-id').val(d.id);
-                    $('#modal-menu-title').html('<i class="fas fa-edit mr-1"></i> Edit Menu Navigasi');
+                    $('#modal-menu-title').text('Edit Menu Navigasi');
                     
                     $('#input-menu-group').val(d.group_id).trigger('change.select2');
                     $('#input-menu-parent').val(d.parent_id).trigger('change.select2');
                     $('#input-menu-label').val(d.label);
-                    $('#input-menu-link').val(d.link);
                     $('#input-menu-type').val(d.type).trigger('change.select2');
                     $('#input-menu-status').val(d.status).trigger('change.select2');
                     $('#input-menu-bind').prop('checked', d.bind == 1);
 
-                    // SIMPAN NILAI ASLI & PASANG KE FINAL ICON
+                    // 1. Sinkronisasi Link (Routes vs URL Eksternal)
+                    if (d.is_external) {
+                        $('#select-crud-link-type').val('url').trigger('change');
+                        $('#input-crud-link-url').val(d.link);
+                        $('#final-crud-link').val(d.link);
+                    } else {
+                        $('#select-crud-link-type').val('routes').trigger('change');
+                        $('#select-crud-link-routes').val(d.link).trigger('change.select2');
+                        $('#final-crud-link').val(d.link);
+                    }
+
+                    // 2. Sinkronisasi Icon Saat Ini & Simpan Original
                     originalEditIcon = (d.icon || 'fas fa-circle').trim();
                     $('#final-crud-icon').val(originalEditIcon);
 
-                    // TAMPILKAN KARTU RINGKASAN IKON SAAT INI
                     renderPreviewHtml('#display-current-icon-box', originalEditIcon);
                     $('#display-current-icon-text').text(originalEditIcon).attr('title', originalEditIcon);
                     
@@ -993,7 +1060,6 @@ $this->registerJs(<<<'JS'
         });
     });
 
-    // Submit CRUD Form
     $('#form-menu-crud').on('submit', function(e) {
         e.preventDefault();
         const id = $('#menu-form-id').val();
@@ -1017,14 +1083,14 @@ $this->registerJs(<<<'JS'
         });
     });
 
-    // ================= CLONE MENU WIZARD =================
+    // ================= CLONE WIZARD =================
     $('#btn-open-clone-wizard').on('click', function() {
         $('#form-clone-submit')[0].reset();
         $('#select-clone-source').val('').trigger('change.select2');
         $('#clone-target-group').val(currentSelectedGroupId).trigger('change.select2');
-        $('#lbl-clone-font').click();
-        $('#input-clone-font-class').val('fas fa-circle');
-        $('#preview-clone-font').html('<i class="fas fa-circle"></i>');
+        $('#select-clone-link-type').val('routes').trigger('change');
+        $('#select-clone-icon-type').val('symbol').trigger('change');
+        $('#final-clone-link').val('#');
         $('#final-clone-icon').val('fas fa-circle');
         $('#modal-clone-menu').modal('show');
     });
@@ -1049,27 +1115,37 @@ $this->registerJs(<<<'JS'
                     $('#clone-target-group').val(d.group_id).trigger('change.select2');
                     $('#clone-target-parent').val(d.parent_id).trigger('change.select2');
                     $('#clone-input-label').val(d.label + ' (Copy)');
-                    $('#clone-input-link').val(d.link);
                     $('#clone-input-type').val(d.type).trigger('change.select2');
                     $('#clone-input-status').val(d.status).trigger('change.select2');
 
+                    // Link Clone
+                    if (d.is_external) {
+                        $('#select-clone-link-type').val('url').trigger('change');
+                        $('#input-clone-link-url').val(d.link);
+                        $('#final-clone-link').val(d.link);
+                    } else {
+                        $('#select-clone-link-type').val('routes').trigger('change');
+                        $('#select-clone-link-routes').val(d.link).trigger('change.select2');
+                        $('#final-clone-link').val(d.link);
+                    }
+
+                    // Icon Clone
                     const cloneIcon = (d.icon || 'fas fa-circle').trim();
                     $('#final-clone-icon').val(cloneIcon);
 
                     if (isImageString(cloneIcon)) {
                         if (cloneIcon.startsWith('http://') || cloneIcon.startsWith('https://')) {
-                            $('#lbl-clone-url').click();
-                            $('#input-clone-image-url').val(cloneIcon);
+                            $('#select-clone-icon-type').val('url').trigger('change');
+                            $('#input-clone-icon-url').val(cloneIcon);
                             renderPreviewHtml('#preview-clone-url', cloneIcon);
                         } else {
-                            $('#lbl-clone-upload').click();
+                            $('#select-clone-icon-type').val('upload').trigger('change');
                             $('#label-clone-upload').text(cloneIcon);
                             renderPreviewHtml('#preview-clone-upload', cloneIcon);
                         }
                     } else {
-                        $('#lbl-clone-font').click();
-                        $('#input-clone-font-class').val(cloneIcon);
-                        $('#preview-clone-font').html(`<i class="${cloneIcon}"></i>`);
+                        $('#select-clone-icon-type').val('symbol').trigger('change');
+                        $('#select-clone-icon-symbol').val(cloneIcon).trigger('change.select2');
                     }
                 }
             }
@@ -1096,7 +1172,6 @@ $this->registerJs(<<<'JS'
         });
     });
 
-    // Delete Menu
     $(document).on('click', '.ds-action-delete, .btn-delete-menu', function(e) {
         e.stopPropagation();
         const id = $(this).attr('data-ds-id') || $(this).data('id');
@@ -1107,9 +1182,7 @@ $this->registerJs(<<<'JS'
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d33',
-            cancelButtonColor: '#6c757d',
-            confirmButtonText: '<i class="fas fa-trash"></i> Ya, Hapus!',
-            cancelButtonText: 'Batal'
+            confirmButtonText: 'Ya, Hapus!'
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
@@ -1132,6 +1205,7 @@ $this->registerJs(<<<'JS'
 
     $(document).ready(function() {
         loadMenuGroups();
+        loadRoutesAndIconsOptions();
         loadTreeData();
     });
 JS

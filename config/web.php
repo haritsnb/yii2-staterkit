@@ -65,29 +65,31 @@ $config = [
 
         // 4. URL Manager dengan Shorthand Rules
         'urlManager' => [
-            'enablePrettyUrl' => true,
-            'showScriptName' => false,
+            'enablePrettyUrl'     => true,
+            'showScriptName'      => false,
             'enableStrictParsing' => false,
-            'rules' => [
+            'rules'               => [
                 // Route penyedia file dari project/storages/...
                 // 'storages/<path:.*>' => 'storage/file',
                 // Catatan: Pisahkan folder dan filename agar URL `/` tidak di-encode menjadi `%2F`
                 'storages/<folder:[\w\-]+>/<filename:[\w\-\.]+>' => 'storage/file',
 
                 // Shorthand Auth & Menu Utama
-                'login'     => 'auth/login',
-                'register'  => 'auth/register',
-                'logout'    => 'auth/logout',
-                'dashboard' => 'dashboard/index',
-                'profile'   => 'profile/index',
-                'users'     => 'user/index',
-                'menus'     => 'menu/index',
-                'settings'  => 'setting/index',
+                'login'       => 'auth/login',
+                'register'    => 'auth/register',
+                'logout'      => 'auth/logout',
+                'dashboard'   => 'dashboard/index',
+                'profile'     => 'profile/index',
+                'users'       => 'user/index',
+                'menus'       => 'menu/index',
+                'settings'    => 'setting/index',
+                'roles'       => 'role/index',
+                'permissions' => 'permission/index',
 
                 // Rule dinamis umum parameter ID
-                '<controller:[\w\-]+>/<id:\d+>' => '<controller>/view',
+                '<controller:[\w\-]+>/<id:\d+>'                  => '<controller>/view',
                 '<controller:[\w\-]+>/<action:[\w\-]+>/<id:\d+>' => '<controller>/<action>',
-                '<controller:[\w\-]+>/<action:[\w\-]+>' => '<controller>/<action>',
+                '<controller:[\w\-]+>/<action:[\w\-]+>'          => '<controller>/<action>',
             ],
         ],
     ],

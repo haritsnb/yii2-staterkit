@@ -73,8 +73,11 @@ class m260909_085648_create_menus_and_groups_tables extends Migration
             [2, 0, 1, 'Dashboard', '/dashboard', 'fas fa-tachometer-alt', 'url', 'active', 1, $nowUtc, 1],
             [2, 0, 2, 'Manajemen Pengguna', '/users', 'fas fa-users', 'url', 'active', 1, $nowUtc, 1],
             [2, 0, 3, 'Navigasi Menu', '/menus', 'fas fa-bars', 'url', 'active', 1, $nowUtc, 1],
-            [2, 0, 4, 'Pengaturan Sistem', '/settings', 'fas fa-cogs', 'url', 'active', 1, $nowUtc, 1],
-            [2, 0, 5, 'Profil Saya', '/profile', 'fas fa-user-cog', 'url', 'active', 1, $nowUtc, 1],
+            [2, 0, 4, 'RBAC', '/rbac', 'fas fa-user-shield', 'url', 'active', 1, $nowUtc, 1],
+            [2, 4, 5, 'Roles', '/roles', 'fas fa-user-tag', 'url', 'active', 1, $nowUtc, 1],
+            [2, 4, 6, 'Permissions', '/permissions', 'fas fa-user-lock', 'url', 'active', 1, $nowUtc, 1],
+            [2, 0, 7, 'Profil Saya', '/profile', 'fas fa-user-cog', 'url', 'active', 1, $nowUtc, 1],
+            [2, 0, 8, 'Pengaturan Sistem', '/settings', 'fas fa-cogs', 'url', 'active', 1, $nowUtc, 1],
         ]);
     }
 
