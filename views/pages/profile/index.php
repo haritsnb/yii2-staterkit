@@ -17,7 +17,18 @@ $changePasswordUrl   = Url::to(['/profile/change-password']);
 $updateLoginModeUrl  = Url::to(['/profile/update-login-mode']);
 $terminateSessionUrl = Url::to(['/profile/terminate-session']);
 
-// Render avatar awal langsung dari PHP agar tidak glitch / delay saat refresh
+// Mendaftarkan URL ke JS Variable agar aman di PHP 8.2+
+$this->registerJsVar('profileUrls', [
+    'getData'          => $getDataUrl,
+    'updateInfo'       => $updateInfoUrl,
+    'uploadAvatar'     => $uploadAvatarUrl,
+    'deleteAvatar'     => $deleteAvatarUrl,
+    'changePassword'   => $changePasswordUrl,
+    'updateLoginMode'  => $updateLoginModeUrl,
+    'terminateSession' => $terminateSessionUrl,
+]);
+
+// Render awal langsung dari PHP agar tidak ada jeda / kedipan avatar saat refresh
 $initialAvatar = $user ? $user->getAvatarUrl() : User::generateInitialAvatar('Admin', 1);
 $initialName   = $user->profile->name ?? ($user->username ?? 'Administrator');
 $initialEmail  = $user->email ?? 'admin@example.com';
@@ -106,7 +117,7 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                 <div class="card card-primary card-outline shadow-sm">
                     <div class="card-body box-profile text-center">
                         
-                        <!-- Avatar Container (Langsung render src PHP untuk hindari glitch) -->
+                        <!-- Avatar Container -->
                         <div class="avatar-container mb-3" id="btn-trigger-avatar-modal" title="Klik untuk mengubah foto profil">
                             <img src="<?= $initialAvatar ?>" alt="Avatar" id="user-avatar-img">
                             <div class="avatar-overlay">
@@ -131,7 +142,7 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                             <a class="nav-link py-2 mb-2 font-weight-bold" id="tab-password-link" data-toggle="pill" href="#tab-password" role="tab">
                                 <i class="fas fa-shield-alt mr-2 text-warning"></i> Keamanan & Password
                             </a>
-                            <a class="nav-link py-2 font-weight-bold" id="tab-devices-link" data-toggle="pill" href="#tab-devices" role="tab">
+                            <a class="nav-link py-2 mb-2 font-weight-bold" id="tab-devices-link" data-toggle="pill" href="#tab-devices" role="tab">
                                 <i class="fas fa-laptop-house mr-2 text-info"></i> Perangkat Anda
                             </a>
                             <a class="nav-link py-2 font-weight-bold" id="tab-login-history-link" data-toggle="pill" href="#tab-login-history" role="tab">
@@ -199,11 +210,11 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                                 <form id="form-edit-info" style="display: none;">
                                     <div class="row">
                                         <div class="col-md-6 form-group">
-                                            <label>Nama Lengkap *</label>
+                                            <label class="font-weight-bold small">Nama Lengkap *</label>
                                             <input type="text" name="name" id="input-name" class="form-control" required>
                                         </div>
                                         <div class="col-md-6 form-group">
-                                            <label>Jenis Kelamin *</label>
+                                            <label class="font-weight-bold small">Jenis Kelamin *</label>
                                             <select name="gender" id="input-gender" class="form-control select2" style="width: 100%;">
                                                 <option value="male">Laki-laki (Male)</option>
                                                 <option value="female">Perempuan (Female)</option>
@@ -211,27 +222,27 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                                             </select>
                                         </div>
                                         <div class="col-md-6 form-group">
-                                            <label>Username *</label>
+                                            <label class="font-weight-bold small">Username *</label>
                                             <input type="text" name="username" id="input-username" class="form-control" required>
                                         </div>
                                         <div class="col-md-6 form-group">
-                                            <label>Email *</label>
+                                            <label class="font-weight-bold small">Email *</label>
                                             <input type="email" name="email" id="input-email" class="form-control" required>
                                         </div>
                                         <div class="col-md-6 form-group">
-                                            <label>Tempat Lahir</label>
+                                            <label class="font-weight-bold small">Tempat Lahir</label>
                                             <input type="text" name="birth_place" id="input-birth-place" class="form-control">
                                         </div>
                                         <div class="col-md-6 form-group">
-                                            <label>Tanggal Lahir</label>
+                                            <label class="font-weight-bold small">Tanggal Lahir</label>
                                             <input type="date" name="birth_date" id="input-birth-date" class="form-control">
                                         </div>
                                         <div class="col-md-6 form-group">
-                                            <label>No. Telepon / WA</label>
+                                            <label class="font-weight-bold small">No. Telepon / WA</label>
                                             <input type="text" name="phone" id="input-phone" class="form-control">
                                         </div>
                                         <div class="col-md-12 form-group">
-                                            <label>Alamat Lengkap</label>
+                                            <label class="font-weight-bold small">Alamat Lengkap</label>
                                             <textarea name="address" id="input-address" class="form-control" rows="2"></textarea>
                                         </div>
                                     </div>
@@ -259,7 +270,7 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                                     <h6 class="font-weight-bold text-dark mb-3"><i class="fas fa-lock text-warning mr-1"></i> Form Pembaruan Password</h6>
                                     <form id="form-change-password">
                                         <div class="form-group">
-                                            <label>Password Saat Ini (Lama) *</label>
+                                            <label class="font-weight-bold small">Password Saat Ini (Lama) *</label>
                                             <div class="input-group">
                                                 <input type="password" name="old_password" id="input-old-pass" class="form-control" required placeholder="Masukkan password saat ini">
                                                 <div class="input-group-append">
@@ -269,7 +280,7 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Password Baru *</label>
+                                            <label class="font-weight-bold small">Password Baru *</label>
                                             <div class="input-group">
                                                 <input type="password" name="new_password" id="input-new-pass" class="form-control" required placeholder="Minimal 6 karakter kombinasi">
                                                 <div class="input-group-append">
@@ -286,7 +297,7 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                                         </div>
 
                                         <div class="form-group">
-                                            <label>Ulangi Password Baru *</label>
+                                            <label class="font-weight-bold small">Ulangi Password Baru *</label>
                                             <div class="input-group">
                                                 <input type="password" name="confirm_password" id="input-confirm-pass" class="form-control" required placeholder="Ketik ulang password baru">
                                                 <div class="input-group-append">
@@ -355,12 +366,12 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                                 <div id="session-list-container"></div>
                             </div>
 
-                            <!-- SUB-HALAMAN 4: RIWAYAT LOGIN TERAKHIR (MAKS 10 RECORD) -->
+                            <!-- SUB-HALAMAN 4: RIWAYAT LOGIN -->
                             <div class="tab-pane fade" id="tab-login-history" role="tabpanel">
                                 <div class="d-flex justify-content-between align-items-center mb-3 pb-2 border-bottom">
                                     <div>
                                         <h5 class="font-weight-bold mb-0 text-primary"><i class="fas fa-history mr-2"></i> 10 Riwayat Login Terakhir</h5>
-                                        <small class="text-muted">Aktivitas login akun Anda pada berbagai perangkat dan lokasi.</small>
+                                        <small class="text-muted">Catatan login akun Anda pada berbagai perangkat dan lokasi.</small>
                                     </div>
                                 </div>
 
@@ -399,18 +410,15 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body py-3">
-                <!-- Preview Foto Besar -->
                 <div class="mb-3">
                     <img src="<?= $initialAvatar ?>" id="modal-avatar-preview" class="img-circle elevation-2 border" style="width: 110px; height: 110px; object-fit: cover;">
                 </div>
                 
-                <!-- Action 1: Upload File -->
                 <button type="button" class="btn btn-primary btn-block font-weight-bold rounded-pill mb-2 py-2" id="btn-modal-upload">
                     <i class="fas fa-upload mr-1"></i> Upload dari Perangkat
                 </button>
-                <input type="file" id="avatar-input" accept="image/png, image/jpeg, image/jpg" style="display: none;">
+                <input type="file" id="avatar-input" accept="image/png, image/jpeg, image/jpg, image/webp, image/svg+xml, image/gif" style="display: none;">
 
-                <!-- Action 2: Hapus Foto Profil -->
                 <button type="button" class="btn btn-outline-danger btn-block font-weight-bold rounded-pill py-2" id="btn-modal-delete-avatar" style="display: none;">
                     <i class="fas fa-trash-alt mr-1"></i> Hapus Foto Profil
                 </button>
@@ -420,7 +428,8 @@ $initialEmail  = $user->email ?? 'admin@example.com';
 </div>
 
 <?php
-$this->registerJs(<<<JS
+// Nowdoc (<<<'JS') murni aman tanpa eval string PHP 8.2
+$this->registerJs(<<<'JS'
     toastr.options = { closeButton: true, progressBar: true, positionClass: "toast-top-right", timeOut: "3500" };
     $('.select2').select2({ theme: 'bootstrap4' });
 
@@ -440,19 +449,35 @@ $this->registerJs(<<<JS
         const now = new Date();
         const diffInSeconds = Math.floor((now - d) / 1000);
         let rel = 'baru saja';
-        if (diffInSeconds >= 60 && diffInSeconds < 3600) rel = `\${Math.floor(diffInSeconds / 60)} mnt lalu`;
-        else if (diffInSeconds >= 3600 && diffInSeconds < 86400) rel = `\${Math.floor(diffInSeconds / 3600)} jam lalu`;
-        else if (diffInSeconds >= 86400) rel = `\${Math.floor(diffInSeconds / 86400)} hari lalu`;
+        if (diffInSeconds >= 60 && diffInSeconds < 3600) rel = `${Math.floor(diffInSeconds / 60)} mnt lalu`;
+        else if (diffInSeconds >= 3600 && diffInSeconds < 86400) rel = `${Math.floor(diffInSeconds / 3600)} jam lalu`;
+        else if (diffInSeconds >= 86400) rel = `${Math.floor(diffInSeconds / 86400)} hari lalu`;
 
         return `
-            <div class="text-nowrap font-weight-bold"><i class="far fa-calendar-alt text-primary mr-1"></i>\${day}-\${month}-\${year}</div>
-            <div class="text-nowrap text-muted small mt-1"><i class="far fa-clock text-secondary mr-1"></i>\${hours}:\${minutes} <span class="badge badge-light border">(\${rel})</span></div>
+            <div class="text-nowrap font-weight-bold"><i class="far fa-calendar-alt text-primary mr-1"></i>${day}-${month}-${year}</div>
+            <div class="text-nowrap text-muted small mt-1"><i class="far fa-clock text-secondary mr-1"></i>${hours}:${minutes} <span class="badge badge-light border">(${rel})</span></div>
         `;
+    }
+
+    function validateImageFile(file) {
+        if (!file) return false;
+        const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'gif'];
+        const ext = (file.name || '').split('.').pop().toLowerCase();
+
+        if (!allowedExtensions.includes(ext)) {
+            toastr.error(`Format file <b>.${ext}</b> tidak didukung!<br>Gunakan: <b>JPG, JPEG, PNG, WebP, SVG, GIF</b>.`, 'Validasi Gagal');
+            return false;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            toastr.error('Ukuran file terlalu besar! Maksimal ukuran foto adalah <b>2 MB</b>.', 'Validasi Gagal');
+            return false;
+        }
+        return true;
     }
 
     function loadProfileData() {
         $.ajax({
-            url: '{$getDataUrl}',
+            url: profileUrls.getData,
             type: 'GET',
             dataType: 'json',
             success: function(res) {
@@ -460,7 +485,6 @@ $this->registerJs(<<<JS
                     const u = res.user;
                     hasCustomPhoto = u.has_custom_avatar;
 
-                    // Update Image Sources
                     $('#user-avatar-img').attr('src', u.avatar);
                     $('#modal-avatar-preview').attr('src', u.avatar);
                     $('.navbar .dropdown img, .sidebar img').attr('src', u.avatar);
@@ -470,14 +494,12 @@ $this->registerJs(<<<JS
                     $('#profile-loginmode-badge').text(u.login_mode === 'single_device' ? 'Single Device' : 'Multi Device');
                     $('#profile-status-badge').text(u.status.toUpperCase());
 
-                    // Tombol Hapus Avatar di Modal
                     if (hasCustomPhoto) {
                         $('#btn-modal-delete-avatar').show();
                     } else {
                         $('#btn-modal-delete-avatar').hide();
                     }
 
-                    // Update Read-Only View Biodata
                     $('#view-name').text(u.name);
                     $('#view-username').text('@' + u.username);
                     $('#view-email').text(u.email);
@@ -487,7 +509,6 @@ $this->registerJs(<<<JS
                     $('#view-address').text(u.address || '-');
                     $('#view-registered-at').html(formatUtcWithRelative(u.registered_at));
 
-                    // Form Pre-fill
                     $('#input-name').val(u.name);
                     $('#input-username').val(u.username);
                     $('#input-email').val(u.email);
@@ -497,7 +518,6 @@ $this->registerJs(<<<JS
                     $('#input-phone').val(u.phone);
                     $('#input-address').val(u.address);
 
-                    // Switch Mode
                     const isMulti = (u.login_mode === 'multi_device');
                     $('#switch-login-mode').prop('checked', isMulti);
                     $('#label-login-mode').text(isMulti ? 'Multi Device' : 'Single Device');
@@ -521,14 +541,14 @@ $this->registerJs(<<<JS
             html += `
                 <tr>
                     <td class="align-middle">
-                        <i class="\${h.icon} mr-1 text-primary"></i> <strong>\${h.device}</strong>
+                        <i class="${h.icon} mr-1 text-primary"></i> <strong>${h.device}</strong>
                     </td>
                     <td class="align-middle">
-                        <div><i class="fas fa-map-marker-alt text-danger mr-1"></i> \${h.location}</div>
-                        <small class="text-muted">IP: <code>\${h.ip_address}</code></small>
+                        <div><i class="fas fa-map-marker-alt text-danger mr-1"></i> ${h.location}</div>
+                        <small class="text-muted">IP: <code>${h.ip_address}</code></small>
                     </td>
                     <td class="align-middle">
-                        \${formatUtcWithRelative(h.created_at)}
+                        ${formatUtcWithRelative(h.created_at)}
                     </td>
                 </tr>
             `;
@@ -549,20 +569,20 @@ $this->registerJs(<<<JS
                 : '';
 
             const revokeBtn = !s.is_current
-                ? `<button class="btn btn-outline-danger btn-sm btn-revoke-session" data-id="\${s.id}"><i class="fas fa-sign-out-alt mr-1"></i> Logout</button>`
+                ? `<button class="btn btn-outline-danger btn-sm btn-revoke-session" data-id="${s.id}"><i class="fas fa-sign-out-alt mr-1"></i> Logout</button>`
                 : '<span class="badge badge-light border">Aktif</span>';
 
             html += `
-                <div class="card card-outline \${s.is_current ? 'card-success' : 'card-light'} shadow-sm mb-3">
+                <div class="card card-outline ${s.is_current ? 'card-success' : 'card-light'} shadow-sm mb-3">
                     <div class="card-body p-3 d-flex align-items-center justify-content-between">
                         <div class="d-flex align-items-center">
-                            <div class="mr-3 text-secondary" style="font-size: 2rem;"><i class="\${s.icon}"></i></div>
+                            <div class="mr-3 text-secondary" style="font-size: 2rem;"><i class="${s.icon}"></i></div>
                             <div>
-                                <h6 class="font-weight-bold mb-0 text-dark">\${s.browser} on \${s.os} \${currentBadge}</h6>
-                                <small class="text-muted">IP: <code>\${s.ip_address}</code> | Aktif: \${formatUtcWithRelative(s.last_activity_at)}</small>
+                                <h6 class="font-weight-bold mb-0 text-dark">${s.browser} on ${s.os} ${currentBadge}</h6>
+                                <small class="text-muted">IP: <code>${s.ip_address}</code> | Aktif: ${formatUtcWithRelative(s.last_activity_at)}</small>
                             </div>
                         </div>
-                        <div>\${revokeBtn}</div>
+                        <div>${revokeBtn}</div>
                     </div>
                 </div>
             `;
@@ -580,16 +600,16 @@ $this->registerJs(<<<JS
         $.each(logs, function(i, log) {
             html += `
                 <tr>
-                    <td class="text-center align-middle font-weight-bold">\${i + 1}</td>
+                    <td class="text-center align-middle font-weight-bold">${i + 1}</td>
                     <td class="align-middle">
-                        <i class="\${log.icon} mr-1 text-primary"></i> <strong>\${log.device}</strong>
+                        <i class="${log.icon} mr-1 text-primary"></i> <strong>${log.device}</strong>
                     </td>
                     <td class="align-middle">
-                        <div><i class="fas fa-map-marker-alt text-danger mr-1"></i> \${log.location}</div>
-                        <small class="text-muted">IP: <code>\${log.ip_address}</code></small>
+                        <div><i class="fas fa-map-marker-alt text-danger mr-1"></i> ${log.location}</div>
+                        <small class="text-muted">IP: <code>${log.ip_address}</code></small>
                     </td>
                     <td class="align-middle">
-                        \${formatUtcWithRelative(log.login_at)}
+                        ${formatUtcWithRelative(log.login_at)}
                     </td>
                 </tr>
             `;
@@ -597,12 +617,11 @@ $this->registerJs(<<<JS
         $('#table-login-history-body').html(html);
     }
 
-    // 1. Trigger Buka Modal Ubah Foto Profil
+    // Modal Ubah Foto Profil
     $('#btn-trigger-avatar-modal').on('click', function() {
         $('#modal-avatar-manager').modal('show');
     });
 
-    // 2. Action: Upload dari Perangkat (via Modal)
     $('#btn-modal-upload').on('click', function() {
         $('#avatar-input').click();
     });
@@ -611,12 +630,17 @@ $this->registerJs(<<<JS
         const file = this.files[0];
         if (!file) return;
 
+        if (!validateImageFile(file)) {
+            $(this).val('');
+            return;
+        }
+
         const formData = new FormData();
         formData.append('avatar_file', file);
         toastr.info('Mengunggah foto profil...');
 
         $.ajax({
-            url: '{$uploadAvatarUrl}',
+            url: profileUrls.uploadAvatar,
             type: 'POST',
             data: formData,
             contentType: false,
@@ -634,11 +658,10 @@ $this->registerJs(<<<JS
         });
     });
 
-    // 3. Action: Hapus Foto Profil (via Modal)
     $('#btn-modal-delete-avatar').on('click', function() {
         Swal.fire({
             title: 'Hapus Foto Profil?',
-            text: 'Foto profil akan dihapus dan dikembalikan ke avatar inisial nama default.',
+            text: 'Foto profil kustom akan dihapus dan digantikan dengan avatar inisial nama.',
             icon: 'question',
             showCancelButton: true,
             confirmButtonColor: '#d33',
@@ -648,7 +671,7 @@ $this->registerJs(<<<JS
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '{$deleteAvatarUrl}',
+                    url: profileUrls.deleteAvatar,
                     type: 'POST',
                     dataType: 'json',
                     success: function(res) {
@@ -665,7 +688,7 @@ $this->registerJs(<<<JS
         });
     });
 
-    // Toggle Form Password
+    // Form Password
     $('#btn-show-pass-form').on('click', function() {
         $('#change-pass-container').slideDown();
         $(this).hide();
@@ -680,7 +703,6 @@ $this->registerJs(<<<JS
         $('#btn-show-pass-form').show();
     });
 
-    // Password Strength Meter
     $('#input-new-pass').on('input', function() {
         const val = $(this).val();
         let score = 0;
@@ -719,7 +741,7 @@ $this->registerJs(<<<JS
         }
 
         $.ajax({
-            url: '{$changePasswordUrl}',
+            url: profileUrls.changePassword,
             type: 'POST',
             data: $(this).serialize(),
             dataType: 'json',
@@ -735,14 +757,14 @@ $this->registerJs(<<<JS
         });
     });
 
-    // Toggle Edit Biodata
+    // Form Edit Biodata
     $('#btn-toggle-edit-info').on('click', function() { $('#info-view-mode').hide(); $('#form-edit-info').fadeIn(); $(this).hide(); });
     $('#btn-cancel-edit-info').on('click', function() { $('#form-edit-info').hide(); $('#info-view-mode').fadeIn(); $('#btn-toggle-edit-info').show(); });
 
     $('#form-edit-info').on('submit', function(e) {
         e.preventDefault();
         $.ajax({
-            url: '{$updateInfoUrl}',
+            url: profileUrls.updateInfo,
             type: 'POST',
             data: $(this).serialize(),
             dataType: 'json',
@@ -764,7 +786,7 @@ $this->registerJs(<<<JS
         const newMode = isChecked ? 'multi_device' : 'single_device';
 
         Swal.fire({
-            title: `Ubah ke Mode \${isChecked ? 'Multi Device' : 'Single Device'}?`,
+            title: `Ubah ke Mode ${isChecked ? 'Multi Device' : 'Single Device'}?`,
             text: isChecked ? 'Anda dapat login di beberapa perangkat bersamaan.' : 'Semua sesi lain akan dikeluarkan seketika.',
             icon: 'warning',
             showCancelButton: true,
@@ -773,7 +795,7 @@ $this->registerJs(<<<JS
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '{$updateLoginModeUrl}',
+                    url: profileUrls.updateLoginMode,
                     type: 'POST',
                     data: { login_mode: newMode },
                     dataType: 'json',
@@ -790,7 +812,7 @@ $this->registerJs(<<<JS
         });
     });
 
-    // Revoke Session
+    // Revoke Sesi Perangkat
     $(document).on('click', '.btn-revoke-session', function() {
         const sessionId = $(this).data('id');
         Swal.fire({
@@ -802,7 +824,7 @@ $this->registerJs(<<<JS
         }).then((result) => {
             if (result.isConfirmed) {
                 $.ajax({
-                    url: '{$terminateSessionUrl}?id=' + sessionId,
+                    url: `${profileUrls.terminateSession}?id=${sessionId}`,
                     type: 'POST',
                     dataType: 'json',
                     success: function(res) {

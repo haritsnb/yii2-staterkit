@@ -11,9 +11,12 @@ $currentName   = $currentUser->profile->name ?? ($currentUser->username ?? 'Admi
 $currentEmail  = $currentUser->email ?? 'admin@example.com';
 $currentMode   = ($currentUser->login_mode ?? 'single_device') === 'single_device' ? 'Single Device' : 'Multi Device';
 $registeredIso = $currentUser ? gmdate('Y-m-d\TH:i:s\Z', strtotime($currentUser->registered_at)) : '';
+$logoutUrl     = Url::to(['/auth/logout']);
 
-// URL Logout terarah ke AuthController::actionLogout
-$logoutUrl = Url::to(['/auth/logout']);
+$this->registerJsVar('navConfig', [
+    'registeredIso' => $registeredIso,
+    'logoutUrl'     => $logoutUrl,
+]);
 ?>
 
 <style>
@@ -71,7 +74,6 @@ $logoutUrl = Url::to(['/auth/logout']);
 </style>
 
 <nav class="main-header navbar navbar-expand navbar-white navbar-light border-bottom shadow-xs px-3" style="min-height: 56px;">
-    <!-- Left navbar links -->
     <ul class="navbar-nav align-items-center">
         <li class="nav-item">
             <a class="nav-link text-secondary p-2" data-widget="pushmenu" href="#" role="button" title="Toggle Sidebar">
@@ -85,24 +87,20 @@ $logoutUrl = Url::to(['/auth/logout']);
         </li>
     </ul>
 
-    <!-- Right navbar links -->
     <ul class="navbar-nav ml-auto align-items-center">
-
-        <!-- Fullscreen Button -->
         <li class="nav-item mr-3">
             <a class="nav-link text-secondary p-2" data-widget="fullscreen" href="#" role="button" title="Layar Penuh">
                 <i class="fas fa-expand-arrows-alt"></i>
             </a>
         </li>
 
-        <!-- USER AVATAR ONLY (GOOGLE ACCOUNT STYLE) -->
+        <!-- USER AVATAR ONLY (GOOGLE STYLE) -->
         <li class="nav-item dropdown">
             <a href="#" class="nav-link p-0 d-flex align-items-center" data-toggle="dropdown" aria-expanded="false" title="<?= Html::encode($currentName) ?>">
                 <img src="<?= $currentAvatar ?>" class="img-circle elevation-1 border" alt="User Avatar" style="width: 38px; height: 38px; object-fit: cover; cursor: pointer;">
             </a>
             
             <div class="dropdown-menu dropdown-menu-right dropdown-menu-google animated fadeIn">
-                
                 <div class="google-user-header">
                     <small class="text-muted font-weight-bold d-block text-truncate mb-3"><?= Html::encode($currentEmail) ?></small>
                     
@@ -128,28 +126,24 @@ $logoutUrl = Url::to(['/auth/logout']);
                         <i class="far fa-calendar-alt mr-1"></i> Bergabung: <span id="navbar-reg-date">-</span>
                     </div>
                 </div>
-
             </div>
         </li>
-
     </ul>
 </nav>
 
 <?php
-$this->registerJs(<<<JS
-    // Format Waktu Registrasi di Navbar
-    const regIso = "{$registeredIso}";
-    if (regIso) {
-        const d = new Date(regIso);
+// Nowdoc (<<<'JS') murni aman di PHP 8.2+
+$this->registerJs(<<<'JS'
+    if (navConfig.registeredIso) {
+        const d = new Date(navConfig.registeredIso);
         if (!isNaN(d.getTime())) {
             const day = String(d.getDate()).padStart(2, '0');
             const month = String(d.getMonth() + 1).padStart(2, '0');
             const year = d.getFullYear();
-            $('#navbar-reg-date').text(`\${day}-\${month}-\${year}`);
+            $('#navbar-reg-date').text(`${day}-${month}-${year}`);
         }
     }
 
-    // Konfirmasi Logout dengan SweetAlert2
     $('.btn-logout-navbar').on('click', function(e) {
         e.preventDefault();
         Swal.fire({
@@ -163,7 +157,7 @@ $this->registerJs(<<<JS
             cancelButtonText: 'Batal'
         }).then((result) => {
             if (result.isConfirmed) {
-                window.location.href = "{$logoutUrl}";
+                window.location.href = navConfig.logoutUrl;
             }
         });
     });

@@ -173,7 +173,7 @@ class ProfileController extends BaseAdminController
     public function actionUploadAvatar(): Response
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        $userId = Yii::$app->user->id ?? 1;
+        $userId = Yii::$app->user->id;
         $user = User::findOne($userId);
 
         $file = UploadedFile::getInstanceByName('avatar_file');
@@ -181,54 +181,87 @@ class ProfileController extends BaseAdminController
             return $this->asJson(['status' => 'error', 'message' => 'Tidak ada file gambar yang diunggah.']);
         }
 
-        $uploadDir = Yii::getAlias('@webroot/uploads/avatars');
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
+        // 1. Validasi Ekstensi yang Diizinkan
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'gif'];
+        $ext = strtolower($file->extension ?: '');
+
+        if (!in_array($ext, $allowedExtensions, true)) {
+            return $this->asJson([
+                'status'  => 'error',
+                'message' => 'Format file ".' . htmlspecialchars($ext) . '" tidak didukung! Format yang diizinkan: JPG, JPEG, PNG, WebP, SVG, GIF.'
+            ]);
         }
 
-        $fileName = 'avatar_' . $user->id . '_' . time() . '.' . $file->extension;
-        $filePath = $uploadDir . '/' . $fileName;
+        // 2. Validasi Batas Ukuran File (Maks. 2 MB)
+        $maxSizeBytes = 2 * 1024 * 1024; // 2 MB
+        if ($file->size > $maxSizeBytes) {
+            return $this->asJson([
+                'status'  => 'error',
+                'message' => 'Ukuran file foto profil terlalu besar! Batas maksimal adalah 2 MB.'
+            ]);
+        }
 
-        if ($file->saveAs($filePath)) {
-            if (!empty($user->avatar) && file_exists(Yii::getAlias('@webroot/' . $user->avatar))) {
-                @unlink(Yii::getAlias('@webroot/' . $user->avatar));
-            }
-
-            $user->avatar = 'uploads/avatars/' . $fileName;
-            $user->save(false);
+        try {
+            $newAvatarPath = \app\components\StorageManager::executeAtomicUpload(
+                $file,
+                'avatars',
+                $user->avatar,
+                function ($newRelativePath) use ($user) {
+                    $user->avatar = $newRelativePath;
+                    if (!$user->save(false)) {
+                        throw new \Exception('Gagal memperbarui data avatar di database.');
+                    }
+                    return $newRelativePath;
+                }
+            );
 
             return $this->asJson([
                 'status'    => 'success',
                 'message'   => 'Foto profil berhasil diperbarui!',
-                'avatarUrl' => Yii::getAlias('@web/' . $user->avatar)
+                'avatarUrl' => \app\components\StorageManager::getUrl($newAvatarPath)
+            ]);
+        } catch (\Throwable $e) {
+            return $this->asJson([
+                'status'  => 'error',
+                'message' => 'Gagal mengunggah foto profil: ' . $e->getMessage()
             ]);
         }
-
-        return $this->asJson(['status' => 'error', 'message' => 'Gagal menyimpan file gambar.']);
     }
 
     public function actionDeleteAvatar(): Response
     {
         Yii::$app->response->format = Response::FORMAT_JSON;
-        $userId = Yii::$app->user->id ?? 1;
+        $userId = Yii::$app->user->id;
         $user = User::findOne($userId);
 
-        if ($user) {
-            if (!empty($user->avatar) && file_exists(Yii::getAlias('@webroot/' . $user->avatar))) {
-                @unlink(Yii::getAlias('@webroot/' . $user->avatar));
-            }
+        if (!$user) {
+            return $this->asJson(['status' => 'error', 'message' => 'User tidak ditemukan']);
+        }
 
-            $user->avatar = null;
-            $user->save(false);
+        try {
+            $oldAvatar = $user->avatar;
+
+            \app\components\StorageManager::executeAtomicDelete(
+                $oldAvatar,
+                function () use ($user) {
+                    $user->avatar = null;
+                    if (!$user->save(false)) {
+                        throw new \Exception('Gagal menghapus avatar dari database.');
+                    }
+                }
+            );
 
             return $this->asJson([
                 'status'    => 'success',
-                'message'   => 'Foto profil berhasil dihapus dan dikembalikan ke avatar inisial.',
+                'message'   => 'Foto profil berhasil dihapus dan dikembalikan ke inisial nama.',
                 'avatarUrl' => $user->getAvatarUrl()
             ]);
+        } catch (\Throwable $e) {
+            return $this->asJson([
+                'status'  => 'error',
+                'message' => 'Gagal menghapus avatar: ' . $e->getMessage()
+            ]);
         }
-
-        return $this->asJson(['status' => 'error', 'message' => 'Gagal menghapus avatar.']);
     }
 
     public function actionChangePassword(): Response

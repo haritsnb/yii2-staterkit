@@ -22,7 +22,78 @@ class MenuController extends BaseAdminController
     }
 
     /**
-     * Endpoint AJAX: Mengunggah file ikon dari komputer (PNG, SVG, JPG, WebP)
+     * Endpoint API: Daftar Rute Internal Aplikasi untuk Select2 Link
+     */
+    public function actionGetAvailableRoutes(): Response
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $routes = [
+            ['id' => '/dashboard', 'name' => '/dashboard (Dashboard Utama)'],
+            ['id' => '/users', 'name' => '/users (Manajemen Pengguna)'],
+            ['id' => '/roles', 'name' => '/roles (Kelola Hak Akses / Roles)'],
+            ['id' => '/permissions', 'name' => '/permissions (Kelola Izin / Permissions)'],
+            ['id' => '/menus', 'name' => '/menus (Manajemen Navigasi Menu)'],
+            ['id' => '/settings', 'name' => '/settings (Pengaturan Sistem)'],
+            ['id' => '/profile', 'name' => '/profile (Profil Saya)'],
+            ['id' => '#', 'name' => '# (Hanya Menu Induk / Tanpa Link)'],
+        ];
+
+        return $this->asJson(['status' => 'success', 'data' => $routes]);
+    }
+
+    /**
+     * Endpoint API: Daftar Ikon FontAwesome Populer untuk Select2 Visual Symbol
+     */
+    public function actionGetFontawesomeIcons(): Response
+    {
+        Yii::$app->response->format = Response::FORMAT_JSON;
+
+        $icons = [
+            'fas fa-tachometer-alt' => 'Dashboard (fas fa-tachometer-alt)',
+            'fas fa-users'          => 'Users (fas fa-users)',
+            'fas fa-user-shield'    => 'Security / Shield (fas fa-user-shield)',
+            'fas fa-key'            => 'Key / Permission (fas fa-key)',
+            'fas fa-sitemap'        => 'Sitemap / Tree (fas fa-sitemap)',
+            'fas fa-bars'           => 'Bars / Navigation (fas fa-bars)',
+            'fas fa-cogs'           => 'Settings (fas fa-cogs)',
+            'fas fa-user-cog'       => 'Profile / Account (fas fa-user-cog)',
+            'fas fa-home'           => 'Home (fas fa-home)',
+            'fas fa-shopping-cart'  => 'Shopping Cart (fas fa-shopping-cart)',
+            'fas fa-shopping-bag'   => 'Shopping Bag (fas fa-shopping-bag)',
+            'fas fa-chart-bar'      => 'Chart Bar (fas fa-chart-bar)',
+            'fas fa-chart-pie'      => 'Chart Pie (fas fa-chart-pie)',
+            'fas fa-chart-line'     => 'Chart Line (fas fa-chart-line)',
+            'fas fa-table'          => 'Table / Data (fas fa-table)',
+            'fas fa-cubes'          => 'Cubes / Modules (fas fa-cubes)',
+            'fas fa-file-alt'       => 'Document (fas fa-file-alt)',
+            'fas fa-folder'         => 'Folder (fas fa-folder)',
+            'fas fa-envelope'       => 'Envelope / Message (fas fa-envelope)',
+            'fas fa-bell'           => 'Notification / Bell (fas fa-bell)',
+            'fas fa-layer-group'    => 'Layer Group (fas fa-layer-group)',
+            'fas fa-globe'          => 'Globe / Website (fas fa-globe)',
+            'fas fa-database'       => 'Database (fas fa-database)',
+            'fas fa-shield-alt'     => 'Shield Protection (fas fa-shield-alt)',
+            'fas fa-circle'         => 'Default Circle (fas fa-circle)',
+            'fab fa-instagram'      => 'Instagram (fab fa-instagram)',
+            'fab fa-facebook'       => 'Facebook (fab fa-facebook)',
+            'fab fa-twitter'        => 'Twitter (fab fa-twitter)',
+            'fab fa-youtube'        => 'YouTube (fab fa-youtube)',
+            'fab fa-whatsapp'       => 'WhatsApp (fab fa-whatsapp)',
+            'fab fa-telegram'       => 'Telegram (fab fa-telegram)',
+            'fab fa-github'         => 'GitHub (fab fa-github)',
+        ];
+
+        $data = [];
+        foreach ($icons as $class => $name) {
+            $data[] = ['id' => $class, 'name' => $name, 'icon_class' => $class];
+        }
+
+        return $this->asJson(['status' => 'success', 'data' => $data]);
+    }
+
+    /**
+     * Endpoint AJAX: Mengunggah file ikon ke project/storages/icons/
      */
     public function actionUploadIcon(): Response
     {
@@ -33,25 +104,37 @@ class MenuController extends BaseAdminController
             return $this->asJson(['status' => 'error', 'message' => 'Tidak ada file ikon yang diunggah.']);
         }
 
-        $uploadDir = Yii::getAlias('@webroot/uploads/icons');
-        if (!is_dir($uploadDir)) {
-            mkdir($uploadDir, 0777, true);
-        }
+        $allowedExtensions = ['jpg', 'jpeg', 'png', 'webp', 'svg', 'gif', 'ico'];
+        $ext = strtolower($file->extension ?: '');
 
-        $fileName = 'icon_' . time() . '_' . rand(100, 999) . '.' . $file->extension;
-        $filePath = $uploadDir . '/' . $fileName;
-
-        if ($file->saveAs($filePath)) {
-            $relativePath = 'uploads/icons/' . $fileName;
+        if (!in_array($ext, $allowedExtensions, true)) {
             return $this->asJson([
-                'status'    => 'success',
-                'message'   => 'Ikon berhasil diunggah!',
-                'iconPath'  => $relativePath,
-                'fullUrl'   => Yii::getAlias('@web/' . $relativePath)
+                'status'  => 'error',
+                'message' => 'Format file ".' . htmlspecialchars($ext) . '" tidak didukung! Format yang diizinkan: JPG, JPEG, PNG, WebP, SVG, GIF, ICO.'
             ]);
         }
 
-        return $this->asJson(['status' => 'error', 'message' => 'Gagal menyimpan file ikon.']);
+        if ($file->size > 2 * 1024 * 1024) {
+            return $this->asJson(['status' => 'error', 'message' => 'Ukuran file ikon terlalu besar! Maksimal 2 MB.']);
+        }
+
+        try {
+            $iconPath = \app\components\StorageManager::executeAtomicUpload(
+                $file,
+                'icons',
+                null,
+                fn($newRelPath) => $newRelPath
+            );
+
+            return $this->asJson([
+                'status'   => 'success',
+                'message'  => 'Ikon berhasil diunggah!',
+                'iconPath' => $iconPath,
+                'fullUrl'  => \app\components\StorageManager::getUrl($iconPath)
+            ]);
+        } catch (\Throwable $e) {
+            return $this->asJson(['status' => 'error', 'message' => 'Gagal mengunggah ikon: ' . $e->getMessage()]);
+        }
     }
 
     public function actionGetGroups(): Response
@@ -171,10 +254,16 @@ class MenuController extends BaseAdminController
         $data = [];
         foreach ($rows as $row) {
             $iconTrim = trim($row->icon ?? '');
-            $isImage = preg_match('/^(https?:\/\/|\/|uploads\/|data:image\/).*\.(png|jpg|jpeg|svg|webp|gif|ico)$/i', $iconTrim) || preg_match('/^https?:\/\//i', $iconTrim);
+            $isImage = \app\components\StorageManager::exists($iconTrim)
+                       || preg_match('/^(https?:\/\/|\/|uploads\/|data:image\/).*\.(png|jpg|jpeg|svg|webp|gif|ico)$/i', $iconTrim)
+                       || preg_match('/^https?:\/\//i', $iconTrim);
 
             if ($isImage) {
-                $iconHtml = '<img src="' . Html::encode($iconTrim) . '" style="width: 20px; height: 20px; object-fit: contain; margin-right: 5px; border-radius: 3px;" alt="icon"> <small class="text-muted text-truncate d-inline-block" style="max-width: 110px;" title="' . Html::encode($iconTrim) . '">' . Html::encode($iconTrim) . '</small>';
+                $imgUrl = \app\components\StorageManager::exists($iconTrim) 
+                    ? \app\components\StorageManager::getUrl($iconTrim) 
+                    : $iconTrim;
+
+                $iconHtml = '<img src="' . Html::encode($imgUrl) . '" style="width: 20px; height: 20px; object-fit: contain; margin-right: 5px; border-radius: 3px;" alt="icon"> <small class="text-muted text-truncate d-inline-block" style="max-width: 110px;" title="' . Html::encode($iconTrim) . '">' . Html::encode($iconTrim) . '</small>';
             } else {
                 $iconHtml = '<i class="' . Html::encode($row->icon ?: 'fas fa-circle') . ' mr-1 text-primary"></i> <small class="font-weight-bold">' . Html::encode($row->icon) . '</small>';
             }
@@ -224,9 +313,9 @@ class MenuController extends BaseAdminController
         $menu = new Menu();
         $menu->group_id  = (int) ($req['group_id'] ?? 1);
         $menu->parent_id = (int) ($req['parent_id'] ?? 0);
-        $menu->label     = $req['label'] ?? '';
-        $menu->link      = $req['link'] ?? '#';
-        $menu->icon      = $req['icon'] ?? 'fas fa-circle';
+        $menu->label     = trim($req['label'] ?? '');
+        $menu->link      = trim($req['link'] ?? '#');
+        $menu->icon      = !empty($req['icon']) ? trim($req['icon']) : 'fas fa-circle';
         $menu->type      = $req['type'] ?? 'url';
         $menu->status    = $req['status'] ?? 'active';
         $menu->bind      = isset($req['bind']) ? (int) $req['bind'] : 1;
@@ -247,18 +336,21 @@ class MenuController extends BaseAdminController
             return $this->asJson(['status' => 'error', 'message' => 'Menu tidak ditemukan']);
         }
 
+        $isExternal = (bool) preg_match('/^(https?:\/\/|mailto:|tel:)/i', $menu->link);
+
         return $this->asJson([
             'status' => 'success',
             'data' => [
-                'id'        => $menu->id,
-                'group_id'  => $menu->group_id,
-                'parent_id' => $menu->parent_id,
-                'label'     => $menu->label,
-                'link'      => $menu->link,
-                'icon'      => $menu->icon,
-                'type'      => $menu->type,
-                'status'    => $menu->status,
-                'bind'      => $menu->bind,
+                'id'          => $menu->id,
+                'group_id'    => $menu->group_id,
+                'parent_id'   => $menu->parent_id,
+                'label'       => $menu->label,
+                'link'        => $menu->link,
+                'is_external' => $isExternal,
+                'icon'        => $menu->icon,
+                'type'        => $menu->type,
+                'status'      => $menu->status,
+                'bind'        => $menu->bind,
             ]
         ]);
     }
@@ -273,20 +365,37 @@ class MenuController extends BaseAdminController
             return $this->asJson(['status' => 'error', 'message' => 'Menu tidak ditemukan']);
         }
 
+        $oldIcon = $menu->icon;
+        $newIcon = !empty($req['icon']) ? trim($req['icon']) : $oldIcon;
+
         $menu->group_id  = (int) ($req['group_id'] ?? $menu->group_id);
         $menu->parent_id = (int) ($req['parent_id'] ?? $menu->parent_id);
-        $menu->label     = $req['label'] ?? $menu->label;
-        $menu->link      = $req['link'] ?? $menu->link;
-        $menu->icon      = $req['icon'] ?? $menu->icon;
+        $menu->label     = trim($req['label'] ?? $menu->label);
+        $menu->link      = trim($req['link'] ?? $menu->link);
+        $menu->icon      = $newIcon;
         $menu->type      = $req['type'] ?? $menu->type;
         $menu->status    = $req['status'] ?? $menu->status;
         $menu->bind      = isset($req['bind']) ? (int) $req['bind'] : $menu->bind;
 
-        if ($menu->save()) {
-            return $this->asJson(['status' => 'success', 'message' => 'Menu berhasil diperbarui!']);
-        }
+        $transaction = Yii::$app->db->beginTransaction();
+        try {
+            if ($menu->save()) {
+                $transaction->commit();
 
-        return $this->asJson(['status' => 'error', 'errors' => $menu->getErrors()]);
+                // Bersihkan file lama jika icon berubah
+                if (!empty($oldIcon) && $oldIcon !== $newIcon && \app\components\StorageManager::exists($oldIcon)) {
+                    \app\components\StorageManager::delete($oldIcon);
+                }
+
+                return $this->asJson(['status' => 'success', 'message' => 'Menu berhasil diperbarui!']);
+            }
+
+            $transaction->rollBack();
+            return $this->asJson(['status' => 'error', 'errors' => $menu->getErrors()]);
+        } catch (\Throwable $e) {
+            $transaction->rollBack();
+            return $this->asJson(['status' => 'error', 'message' => 'Gagal memperbarui menu: ' . $e->getMessage()]);
+        }
     }
 
     public function actionClone(): Response
@@ -304,9 +413,9 @@ class MenuController extends BaseAdminController
         $newMenu = new Menu();
         $newMenu->group_id  = (int) ($req['group_id'] ?? $sourceMenu->group_id);
         $newMenu->parent_id = (int) ($req['parent_id'] ?? $sourceMenu->parent_id);
-        $newMenu->label     = $req['label'] ?? ($sourceMenu->label . ' (Copy)');
-        $newMenu->link      = $req['link'] ?? $sourceMenu->link;
-        $newMenu->icon      = $req['icon'] ?? $sourceMenu->icon;
+        $newMenu->label     = trim($req['label'] ?? ($sourceMenu->label . ' (Copy)'));
+        $newMenu->link      = trim($req['link'] ?? $sourceMenu->link);
+        $newMenu->icon      = !empty($req['icon']) ? trim($req['icon']) : $sourceMenu->icon;
         $newMenu->type      = $req['type'] ?? $sourceMenu->type;
         $newMenu->status    = $req['status'] ?? $sourceMenu->status;
         $newMenu->bind      = isset($req['bind']) ? (int) $req['bind'] : $sourceMenu->bind;

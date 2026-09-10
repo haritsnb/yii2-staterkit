@@ -146,10 +146,12 @@ class User extends ActiveRecord implements IdentityInterface
      */
     public function getAvatarUrl(): string
     {
-        if (!empty($this->avatar) && file_exists(Yii::getAlias('@webroot/' . $this->avatar))) {
-            return Yii::getAlias('@web/' . $this->avatar);
+        // Cek keberadaan file di project/storages/...
+        if (!empty($this->avatar) && \app\components\StorageManager::exists($this->avatar)) {
+            return \app\components\StorageManager::getUrl($this->avatar);
         }
 
+        // Fallback ke avatar inisial SVG otomatis
         return self::generateInitialAvatar($this->profile->name ?? $this->username, $this->id);
     }
 
