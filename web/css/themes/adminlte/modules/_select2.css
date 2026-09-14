@@ -1,0 +1,75 @@
+/**
+ * Custom AdminLTE 3.2 Theme Overrides
+ */
+
+/* =========================================================================
+   1. PERBAIKAN SELECT2: ELIMINASI FLICKER & POSISI MELAYANG DI MODAL
+   ========================================================================= */
+.select2-container {
+    width: 100% !important;
+}
+
+.select2-container--bootstrap4 .select2-selection {
+    transition: none !important;
+    border-radius: 4px;
+}
+
+/* Pastikan Dropdown Select2 selalu muncul di atas Modal (Z-Index Modal Bootstrap: 1050) */
+.select2-dropdown {
+    z-index: 1065 !important;
+    border-radius: 8px !important;
+    border: 1px solid #ced4da !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* Hilangkan outline kedipan saat input fokus */
+.select2-search--dropdown .select2-search__field {
+    border-radius: 4px !important;
+}
+
+/* =========================================================================
+   2. PERBAIKAN MODAL: RESPONSIF & AUTO-SCROLL VERTIKAL
+   ========================================================================= */
+.modal {
+    overflow-y: auto !important;
+    padding-right: 0 !important;
+}
+
+.modal-dialog {
+    margin: 1.75rem auto;
+    max-width: 95%;
+}
+
+@media (min-width: 576px) {
+    .modal-dialog { max-width: 520px; }
+    .modal-dialog.modal-lg { max-width: 820px; }
+    .modal-dialog.modal-xl { max-width: 1140px; }
+}
+
+/* Modal Body Otomatis Scroll jika Konten Melebihi Tinggi Layar */
+.modal-body {
+    max-height: calc(100vh - 170px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.modal-content {
+    border-radius: 16px !important;
+    border: none !important;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* =========================================================================
+   3. STYLING ELEMEN TAMBAHAN
+   ========================================================================= */
+.card {
+    border-radius: 12px;
+}
+
+.shadow-xs {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.shadow-sm {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+}

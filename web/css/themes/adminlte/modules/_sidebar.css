@@ -1,0 +1,344 @@
+/* ==========================================================================
+   MODULE: SIDEBAR (Tailwind Clean Slate + Precision Dotted Treeview)
+   Updated: Full Support for Normal Mode & Sidebar-Mini / Collapse Mode
+   ========================================================================== */
+
+/* 1. CONTAINER SIDEBAR & ANTI-OVERFLOW LOCK */
+.main-sidebar,
+.main-sidebar.elevation-4,
+.main-sidebar.elevation-1,
+.main-sidebar.elevation-2,
+.main-sidebar.elevation-3 {
+  background-color: var(--tw-bg-sidebar) !important;
+  border-right: 1px solid var(--tw-border-sidebar) !important;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05) !important;
+  overflow-x: hidden !important;
+  transition: width 0.3s ease-in-out, box-shadow 0.3s ease-in-out !important;
+}
+
+.main-sidebar .sidebar {
+  padding-left: 0.5rem !important;
+  padding-right: 0.5rem !important;
+  overflow-x: hidden !important;
+}
+
+/* 2. RESET TOTAL BORDER BAWAAN ADMINLTE (TERMASUK .nav-flat) */
+.nav-flat.nav-sidebar > .nav-item .nav-treeview .nav-item > .nav-link,
+.nav-flat.nav-sidebar > .nav-item > .nav-treeview .nav-item > .nav-link,
+.nav-flat.nav-sidebar .nav-link,
+.nav-sidebar .nav-link,
+.nav-sidebar .nav-treeview .nav-link {
+  border: none !important;
+  border-left: none !important;
+  border-left-width: 0 !important;
+}
+
+/* 3. BRAND LOGO */
+.brand-link {
+  background-color: var(--tw-bg-sidebar) !important;
+  border-bottom: 1px solid var(--tw-border-sidebar) !important;
+  box-shadow: none !important;
+  padding: 1.1rem 1rem !important;
+  display: flex !important;
+  align-items: center;
+  box-sizing: border-box !important;
+  transition: padding 0.3s ease;
+}
+.brand-link .brand-text {
+  font-size: 0.95rem !important;
+  font-weight: 700 !important;
+  color: #ffffff !important;
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+  transition: opacity 0.3s ease;
+}
+.brand-link .brand-image {
+  box-shadow: none !important;
+  margin-left: 0.2rem;
+  margin-right: 0.75rem;
+  transition: margin 0.3s ease;
+}
+
+/* 4. USER PANEL */
+.user-panel {
+  border-bottom: 1px solid var(--tw-border-sidebar) !important;
+  padding: 0.85rem 0.25rem !important;
+  margin-bottom: 0.5rem !important;
+  display: flex;
+  align-items: center;
+}
+.user-panel .info {
+  white-space: nowrap;
+}
+.user-panel .info a {
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  color: #f1f5f9 !important;
+}
+
+/* 5. HEADER KATEGORI */
+.nav-sidebar .nav-header {
+  font-size: 0.7rem !important;
+  font-weight: 700 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.075em !important;
+  color: var(--tw-slate-500) !important;
+  background-color: transparent !important;
+  padding: 14px 10px 4px 10px !important;
+  white-space: nowrap;
+}
+
+/* ==========================================================================
+   6. GLOBAL MENU (MODE NORMAL)
+   ========================================================================== */
+
+.nav-sidebar {
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
+}
+
+.nav-sidebar .nav-item {
+  width: 100% !important;
+  position: relative;
+}
+
+/* Base Link */
+.nav-sidebar .nav-link,
+.nav-sidebar .nav-treeview .nav-item .nav-link {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 2px 0 !important;
+  padding: 8px 12px !important;
+  font-size: 0.85rem !important;
+  font-weight: 500 !important;
+  color: var(--tw-slate-400) !important;
+  border-radius: var(--tw-radius-md) !important;
+  display: flex !important;
+  align-items: center !important;
+  box-shadow: none !important;
+  transition: all 0.15s ease-in-out;
+}
+
+/* Teks Menu */
+.nav-sidebar .nav-link > p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Base Icon */
+.nav-sidebar .nav-link .nav-icon,
+.nav-sidebar .nav-treeview .nav-item .nav-link .nav-icon {
+  font-size: 0.95rem !important;
+  width: 1.25rem !important;
+  min-width: 1.25rem !important;
+  text-align: center !important;
+  margin-right: 8px !important;
+  color: var(--tw-slate-400) !important;
+  opacity: 1 !important;
+  flex-shrink: 0 !important;
+  transition: color 0.15s ease, margin 0.3s ease;
+}
+
+/* Hover Parent */
+.nav-sidebar .nav-item > .nav-link:hover {
+  background-color: var(--tw-bg-sidebar-hover) !important;
+  color: #ffffff !important;
+}
+.nav-sidebar .nav-item > .nav-link:hover .nav-icon {
+  color: #ffffff !important;
+}
+
+/* Parent Aktif */
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active,
+.sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active,
+.nav-sidebar > .nav-item > .nav-link.active {
+  background-color: var(--tw-primary) !important;
+  color: #ffffff !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.35) !important;
+}
+.nav-sidebar > .nav-item > .nav-link.active .nav-icon {
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   7. CHILD MENU: GARIS TITIK-TITIK PRESISI (MODE NORMAL)
+   ========================================================================== */
+
+.nav-sidebar .nav-treeview {
+  position: relative;
+  width: 100% !important;
+  padding: 0 !important;
+  margin: 2px 0 4px 0 !important;
+  background-color: transparent !important;
+}
+
+/* Garis Vertikal */
+.nav-sidebar .nav-treeview::before {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 0;
+  bottom: 18px;
+  width: 1px;
+  border-left: 1.5px dotted var(--tw-treeview-line) !important;
+  z-index: 1;
+}
+
+/* Item Child */
+.nav-sidebar .nav-treeview > .nav-item {
+  position: relative;
+  width: 100% !important;
+}
+
+/* Garis Cabang Horizontal */
+.nav-sidebar .nav-treeview > .nav-item::before {
+  content: '';
+  position: absolute;
+  left: 22px;
+  top: 50%;
+  width: 12px;
+  border-top: 1.5px dotted var(--tw-treeview-line) !important;
+  z-index: 1;
+}
+
+/* Child Link */
+.nav-sidebar .nav-treeview > .nav-item > .nav-link {
+  padding: 7px 10px 7px 34px !important;
+  margin: 2px 0 !important;
+}
+
+/* Hover & Aktif Child */
+.nav-sidebar .nav-treeview > .nav-item > .nav-link:hover {
+  background-color: var(--tw-bg-sidebar-hover) !important;
+  color: #ffffff !important;
+}
+.nav-sidebar .nav-treeview > .nav-item > .nav-link.active {
+  background-color: rgba(79, 70, 229, 0.15) !important;
+  color: #818cf8 !important;
+  font-weight: 600 !important;
+}
+.nav-sidebar .nav-treeview > .nav-item > .nav-link.active .nav-icon {
+  color: #818cf8 !important;
+}
+
+/* ==========================================================================
+   8. ARROW INDICATOR
+   ========================================================================== */
+.nav-sidebar .nav-link > p > .right {
+  top: 50% !important;
+  right: 10px !important;
+  transform: translateY(-50%) !important;
+  transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  font-size: 0.75rem !important;
+  color: var(--tw-slate-500) !important;
+  flex-shrink: 0 !important;
+}
+
+.nav-item.menu-open > .nav-link > p > .right,
+.nav-item.menu-is-opening > .nav-link > p > .right {
+  transform: translateY(-50%) rotate(-90deg) !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   9. FIX KHUSUS: MODE MINI-SIDEBAR (COLLAPSED STATE)
+   ========================================================================== */
+
+/* Saat Mini Sidebar Ditutup (Kecil) dan TIDAK sedang di-hover */
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover),
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover),
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) {
+  width: 4.6rem !important;
+}
+
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .sidebar,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .sidebar,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .sidebar {
+  padding-left: 0.25rem !important;
+  padding-right: 0.25rem !important;
+}
+
+/* 1. Brand Logo Mini */
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .brand-link,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .brand-link,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .brand-link {
+  justify-content: center !important;
+  padding: 0.85rem 0 !important;
+}
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .brand-link .brand-text,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .brand-link .brand-text,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .brand-link .brand-text {
+  display: none !important;
+}
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .brand-link .brand-image,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .brand-link .brand-image,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .brand-link .brand-image {
+  margin: 0 !important;
+  float: none !important;
+}
+
+/* 2. User Panel Mini */
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .user-panel,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .user-panel,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .user-panel {
+  justify-content: center !important;
+  padding: 0.75rem 0 !important;
+}
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .user-panel .image,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .user-panel .image,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .user-panel .image {
+  padding: 0 !important;
+  margin: 0 !important;
+}
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .user-panel .info,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .user-panel .info,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .user-panel .info {
+  display: none !important;
+}
+
+/* 3. Sembunyikan Header Kategori & Teks Menu */
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .nav-header,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .nav-header,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .nav-header {
+  display: none !important;
+}
+
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .nav-sidebar .nav-link > p,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .nav-sidebar .nav-link > p,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .nav-sidebar .nav-link > p {
+  display: none !important;
+}
+
+/* 4. Buat Icon Berada Tepat di Tengah (Center Alignment) */
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .nav-sidebar .nav-link,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .nav-sidebar .nav-link,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .nav-sidebar .nav-link {
+  padding: 9px 0 !important;
+  justify-content: center !important;
+  width: 100% !important;
+}
+
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .nav-sidebar .nav-link .nav-icon,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .nav-sidebar .nav-link .nav-icon,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .nav-sidebar .nav-link .nav-icon {
+  margin: 0 !important;
+  text-align: center !important;
+}
+
+/* 5. Sembunyikan Sub-menu (Treeview) dan Garis Titik-titik saat Mini */
+body.sidebar-collapse.sidebar-mini .main-sidebar:not(:hover) .nav-treeview,
+body.sidebar-collapse.sidebar-mini-md .main-sidebar:not(:hover) .nav-treeview,
+body.sidebar-collapse.sidebar-mini-xs .main-sidebar:not(:hover) .nav-treeview,
+body.sidebar-collapse .nav-sidebar .nav-treeview::before,
+body.sidebar-collapse .nav-sidebar .nav-treeview > .nav-item::before {
+  display: none !important;
+}

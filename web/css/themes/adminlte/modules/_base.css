@@ -1,0 +1,80 @@
+/* ==========================================================================
+   MODULE: BASE LAYOUT & TYPOGRAPHY
+   ========================================================================== */
+
+body {
+  font-family: var(--tw-font-family) !important;
+  font-size: 0.875rem !important; /* 14px */
+  color: var(--tw-slate-700) !important;
+  background-color: var(--tw-bg-body) !important;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Headings */
+h1, .h1 { font-size: 1.5rem !important; font-weight: 700; color: var(--tw-slate-900); }
+h2, .h2 { font-size: 1.25rem !important; font-weight: 700; color: var(--tw-slate-900); }
+h3, .h3 { font-size: 1.125rem !important; font-weight: 600; color: var(--tw-slate-900); }
+h4, .h4 { font-size: 1rem !important; font-weight: 600; color: var(--tw-slate-900); }
+h5, .h5 { font-size: 0.875rem !important; font-weight: 600; color: var(--tw-slate-800); }
+h6, .h6 { font-size: 0.75rem !important; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: var(--tw-slate-500); }
+
+/* Content Wrapper Background */
+.content-wrapper {
+  background-color: var(--tw-bg-body) !important;
+}
+
+/* Content Header & Breadcrumbs */
+.content-header {
+  padding: 1.5rem 0.5rem 1rem !important;
+}
+.content-header h1 {
+  font-size: 1.35rem !important;
+  font-weight: 700 !important;
+  color: var(--tw-slate-900) !important;
+  letter-spacing: -0.025em;
+}
+.breadcrumb {
+  background-color: transparent !important;
+  padding: 0 !important;
+  margin-bottom: 0 !important;
+  font-size: 0.8125rem !important;
+}
+.breadcrumb-item a {
+  color: var(--tw-slate-500) !important;
+  text-decoration: none;
+}
+.breadcrumb-item a:hover {
+  color: var(--tw-primary) !important;
+}
+.breadcrumb-item.active {
+  color: var(--tw-slate-800) !important;
+  font-weight: 500;
+}
+.breadcrumb-item + .breadcrumb-item::before {
+  color: var(--tw-slate-400);
+}
+
+/* Footer */
+.main-footer {
+  background-color: #ffffff !important;
+  border-top: 1px solid var(--tw-slate-200) !important;
+  color: var(--tw-slate-500) !important;
+  font-size: 0.8125rem !important;
+  padding: 1rem 1.5rem !important;
+}
+
+/* Custom Minimal Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--tw-slate-300);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--tw-slate-400);
+}

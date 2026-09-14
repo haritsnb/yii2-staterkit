@@ -1,0 +1,422 @@
+/* ==========================================================================
+   MODULE: BUTTONS (Pure Override Bootstrap 4 & AdminLTE 3)
+   Aesthetic: Tailwind UI Precision (Radius 6px / rounded-md & Focus Ring)
+   NO NEW CLASSES - 100% NATIVE CLASS OVERRIDE
+   ========================================================================== */
+
+/* ==========================================================================
+   1. BASE BUTTON (.btn)
+   ========================================================================== */
+.btn {
+  font-family: var(--tw-font-family) !important;
+  font-size: 0.875rem !important; /* 14px */
+  font-weight: 500 !important;    /* Tailwind font-medium */
+  line-height: 1.25rem !important;
+  border-radius: 0.375rem !important; /* 6px (rounded-md) */
+  padding: 0.5rem 0.875rem !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.375rem;
+  border: 1px solid transparent !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  cursor: pointer;
+  text-decoration: none !important;
+}
+
+.btn:focus,
+.btn.focus {
+  outline: none !important;
+}
+
+/* Disabled State */
+.btn:disabled,
+.btn.disabled,
+fieldset:disabled .btn {
+  opacity: 0.55 !important;
+  cursor: not-allowed !important;
+  pointer-events: none !important;
+  box-shadow: none !important;
+}
+
+/* ==========================================================================
+   2. UKURAN TOMBOL (.btn-lg, .btn-sm, .btn-xs, .btn-block)
+   ========================================================================== */
+.btn-lg {
+  font-size: 0.9375rem !important; /* 15px */
+  padding: 0.625rem 1.125rem !important;
+  border-radius: 0.5rem !important; /* 8px */
+}
+
+.btn-sm {
+  font-size: 0.775rem !important; /* 12.4px */
+  padding: 0.3125rem 0.65rem !important;
+  border-radius: 0.375rem !important;
+}
+
+.btn-xs {
+  font-size: 0.6875rem !important; /* 11px */
+  padding: 0.2rem 0.5rem !important;
+  border-radius: 0.25rem !important; /* 4px */
+}
+
+.btn-block {
+  display: flex !important;
+  width: 100% !important;
+}
+
+/* ==========================================================================
+   3. SOLID BUTTON VARIANTS (WARNA DASAR TAILWIND)
+   ========================================================================== */
+
+/* A. Primary (Indigo-600) */
+.btn-primary {
+  background-color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+.btn-primary:hover {
+  background-color: #4338ca !important;
+  border-color: #4338ca !important;
+  color: #ffffff !important;
+}
+.btn-primary:focus, .btn-primary.focus,
+.btn-primary:not(:disabled):not(.disabled):active,
+.btn-primary:not(:disabled):not(.disabled).active,
+.show > .btn-primary.dropdown-toggle {
+  background-color: #3730a3 !important;
+  border-color: #3730a3 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(79, 70, 229, 0.45) !important;
+}
+
+/* B. Secondary & Default (Tailwind White Button with Slate Border) */
+.btn-secondary,
+.btn-default {
+  background-color: #ffffff !important;
+  border-color: var(--tw-slate-300) !important;
+  color: var(--tw-slate-700) !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+}
+.btn-secondary:hover,
+.btn-default:hover {
+  background-color: var(--tw-slate-50) !important;
+  border-color: var(--tw-slate-400) !important;
+  color: var(--tw-slate-900) !important;
+}
+.btn-secondary:focus, .btn-secondary.focus,
+.btn-default:focus, .btn-default.focus,
+.btn-secondary:not(:disabled):not(.disabled):active,
+.btn-default:not(:disabled):not(.disabled):active,
+.show > .btn-secondary.dropdown-toggle,
+.show > .btn-default.dropdown-toggle {
+  background-color: var(--tw-slate-100) !important;
+  border-color: var(--tw-slate-400) !important;
+  color: var(--tw-slate-900) !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(100, 116, 139, 0.3) !important;
+}
+
+/* C. Success (Emerald-600) */
+.btn-success {
+  background-color: #059669 !important;
+  border-color: #059669 !important;
+  color: #ffffff !important;
+}
+.btn-success:hover {
+  background-color: #047857 !important;
+  border-color: #047857 !important;
+  color: #ffffff !important;
+}
+.btn-success:focus, .btn-success.focus,
+.btn-success:not(:disabled):not(.disabled):active,
+.show > .btn-success.dropdown-toggle {
+  background-color: #065f46 !important;
+  border-color: #065f46 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(16, 185, 129, 0.45) !important;
+}
+
+/* D. Danger (Rose-600) */
+.btn-danger {
+  background-color: #e11d48 !important;
+  border-color: #e11d48 !important;
+  color: #ffffff !important;
+}
+.btn-danger:hover {
+  background-color: #be123c !important;
+  border-color: #be123c !important;
+  color: #ffffff !important;
+}
+.btn-danger:focus, .btn-danger.focus,
+.btn-danger:not(:disabled):not(.disabled):active,
+.show > .btn-danger.dropdown-toggle {
+  background-color: #9f1239 !important;
+  border-color: #9f1239 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(225, 29, 72, 0.45) !important;
+}
+
+/* E. Warning (Amber-500) */
+.btn-warning {
+  background-color: #f59e0b !important;
+  border-color: #f59e0b !important;
+  color: #ffffff !important;
+}
+.btn-warning:hover {
+  background-color: #d97706 !important;
+  border-color: #d97706 !important;
+  color: #ffffff !important;
+}
+.btn-warning:focus, .btn-warning.focus,
+.btn-warning:not(:disabled):not(.disabled):active,
+.show > .btn-warning.dropdown-toggle {
+  background-color: #b45309 !important;
+  border-color: #b45309 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(245, 158, 11, 0.45) !important;
+}
+
+/* F. Info (Sky-500) */
+.btn-info {
+  background-color: #0ea5e9 !important;
+  border-color: #0ea5e9 !important;
+  color: #ffffff !important;
+}
+.btn-info:hover {
+  background-color: #0284c7 !important;
+  border-color: #0284c7 !important;
+  color: #ffffff !important;
+}
+.btn-info:focus, .btn-info.focus,
+.btn-info:not(:disabled):not(.disabled):active,
+.show > .btn-info.dropdown-toggle {
+  background-color: #0369a1 !important;
+  border-color: #0369a1 !important;
+  color: #ffffff !important;
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(14, 165, 233, 0.45) !important;
+}
+
+/* G. Dark (Slate-800) */
+.btn-dark {
+  background-color: #1e293b !important;
+  border-color: #1e293b !important;
+  color: #ffffff !important;
+}
+.btn-dark:hover {
+  background-color: #0f172a !important;
+  border-color: #0f172a !important;
+  color: #ffffff !important;
+}
+.btn-dark:focus, .btn-dark.focus {
+  box-shadow: 0 0 0 2px #ffffff, 0 0 0 4px rgba(30, 41, 59, 0.45) !important;
+}
+
+/* H. Light (Slate-100) */
+.btn-light {
+  background-color: #f1f5f9 !important;
+  border-color: #e2e8f0 !important;
+  color: var(--tw-slate-700) !important;
+}
+.btn-light:hover {
+  background-color: #e2e8f0 !important;
+  border-color: #cbd5e1 !important;
+  color: var(--tw-slate-900) !important;
+}
+
+/* I. Link */
+.btn-link {
+  background-color: transparent !important;
+  border-color: transparent !important;
+  color: #4f46e5 !important;
+  box-shadow: none !important;
+  font-weight: 500 !important;
+}
+.btn-link:hover {
+  color: #3730a3 !important;
+  text-decoration: underline !important;
+}
+
+/* ==========================================================================
+   4. OUTLINE BUTTON VARIANTS (.btn-outline-*)
+   ========================================================================== */
+.btn-outline-primary {
+  color: #4f46e5 !important;
+  border-color: #4f46e5 !important;
+  background-color: transparent !important;
+}
+.btn-outline-primary:hover,
+.btn-outline-primary:not(:disabled):not(.disabled):active,
+.show > .btn-outline-primary.dropdown-toggle {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-secondary {
+  color: var(--tw-slate-600) !important;
+  border-color: var(--tw-slate-300) !important;
+  background-color: transparent !important;
+}
+.btn-outline-secondary:hover,
+.btn-outline-secondary:not(:disabled):not(.disabled):active {
+  background-color: var(--tw-slate-100) !important;
+  color: var(--tw-slate-900) !important;
+}
+
+.btn-outline-success {
+  color: #059669 !important;
+  border-color: #059669 !important;
+  background-color: transparent !important;
+}
+.btn-outline-success:hover,
+.btn-outline-success:not(:disabled):not(.disabled):active {
+  background-color: #059669 !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-danger {
+  color: #e11d48 !important;
+  border-color: #e11d48 !important;
+  background-color: transparent !important;
+}
+.btn-outline-danger:hover,
+.btn-outline-danger:not(:disabled):not(.disabled):active {
+  background-color: #e11d48 !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-warning {
+  color: #d97706 !important;
+  border-color: #f59e0b !important;
+  background-color: transparent !important;
+}
+.btn-outline-warning:hover,
+.btn-outline-warning:not(:disabled):not(.disabled):active {
+  background-color: #f59e0b !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-info {
+  color: #0284c7 !important;
+  border-color: #0ea5e9 !important;
+  background-color: transparent !important;
+}
+.btn-outline-info:hover,
+.btn-outline-info:not(:disabled):not(.disabled):active {
+  background-color: #0ea5e9 !important;
+  color: #ffffff !important;
+}
+
+.btn-outline-dark {
+  color: #1e293b !important;
+  border-color: #334155 !important;
+  background-color: transparent !important;
+}
+.btn-outline-dark:hover,
+.btn-outline-dark:not(:disabled):not(.disabled):active {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+}
+
+/* ==========================================================================
+   5. BUTTON GROUPS & INPUT GROUPS (.btn-group, .input-group)
+   ========================================================================== */
+.btn-group,
+.btn-group-vertical {
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  border-radius: 0.375rem !important;
+}
+
+.btn-group > .btn {
+  box-shadow: none !important;
+}
+
+.btn-group > .btn:first-child {
+  border-top-left-radius: 0.375rem !important;
+  border-bottom-left-radius: 0.375rem !important;
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+.btn-group > .btn:last-child {
+  border-top-right-radius: 0.375rem !important;
+  border-bottom-right-radius: 0.375rem !important;
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.btn-group > .btn:not(:first-child):not(:last-child) {
+  border-radius: 0 !important;
+}
+
+.btn-group > .btn + .btn {
+  margin-left: -1px !important;
+}
+
+/* Dropdown Toggle Caret */
+.dropdown-toggle::after {
+  vertical-align: 0.15em !important;
+  margin-left: 0.4em !important;
+}
+
+/* ==========================================================================
+   6. ADMINLTE SPECIAL BUTTONS (.btn-tool, .btn-app, .close, .btn-flat)
+   ========================================================================== */
+
+/* Card Tools Buttons (Icon kecil di pojok card) */
+.btn-tool {
+  background-color: transparent !important;
+  border: none !important;
+  color: var(--tw-slate-400) !important;
+  padding: 0.25rem 0.45rem !important;
+  font-size: 0.8125rem !important;
+  border-radius: 0.375rem !important;
+  box-shadow: none !important;
+}
+.btn-tool:hover {
+  background-color: var(--tw-slate-200) !important;
+  color: var(--tw-slate-700) !important;
+}
+
+/* Modal / Alert Close Button */
+button.close {
+  padding: 0.5rem 0.75rem !important;
+  color: var(--tw-slate-400) !important;
+  text-shadow: none !important;
+  opacity: 1 !important;
+  border-radius: 0.375rem !important;
+  transition: all 0.15s ease !important;
+}
+button.close:hover {
+  color: var(--tw-slate-700) !important;
+  background-color: var(--tw-slate-100) !important;
+}
+
+/* AdminLTE Quick App Button (.btn-app) */
+.btn-app {
+  border-radius: 0.5rem !important; /* 8px */
+  background-color: #ffffff !important;
+  border: 1px solid var(--tw-slate-200) !important;
+  color: var(--tw-slate-700) !important;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+  min-width: 75px !important;
+  height: 65px !important;
+  padding: 10px 5px !important;
+  font-size: 0.75rem !important;
+  transition: all 0.15s ease !important;
+}
+.btn-app:hover {
+  background-color: var(--tw-slate-50) !important;
+  border-color: var(--tw-slate-300) !important;
+  color: var(--tw-slate-900) !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07) !important;
+}
+.btn-app > .badge {
+  border-radius: 9999px !important;
+  font-size: 0.65rem !important;
+}
+
+/* AdminLTE Flat Button Reset */
+.btn-flat {
+  border-radius: 0 !important;
+}
