@@ -309,7 +309,7 @@ $initialEmail  = $user->email ?? 'admin@example.com';
 
                                         <div class="d-flex justify-content-end mt-3">
                                             <button type="button" class="btn btn-secondary mr-2" id="btn-cancel-pass-form">
-                                                <i class="fas fa-times mr-1"></i> Batal / Clear
+                                                <i class="fas fa-times mr-1"></i> Batal
                                             </button>
                                             <button type="submit" class="btn btn-warning font-weight-bold">
                                                 <i class="fas fa-save mr-1"></i> Simpan Password Baru
@@ -346,18 +346,20 @@ $initialEmail  = $user->email ?? 'admin@example.com';
                                 </div>
 
                                 <div class="card card-outline card-info bg-light p-3 mb-4 shadow-sm">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <div>
+                                    <div class="row d-flex justify-content-between align-items-center">
+                                        <div class="col-12 mb-2">
                                             <h6 class="font-weight-bold mb-1 text-dark">
-                                                <i class="fas fa-toggle-on text-info mr-1"></i> Mode Login Multi-Device
+                                                Mode Login Multi-Device
                                             </h6>
                                             <p class="text-muted small mb-0">
                                                 Jika <b>Aktif (Multi Device)</b>, Anda dapat login di HP & Komputer bersamaan. Jika <b>Nonaktif (Single Device)</b>, sesi login di perangkat lain otomatis dikeluarkan.
                                             </p>
                                         </div>
-                                        <div class="custom-control custom-switch custom-switch-lg ml-3">
-                                            <input type="checkbox" class="custom-control-input" id="switch-login-mode">
-                                            <label class="custom-control-label font-weight-bold" for="switch-login-mode" id="label-login-mode">Single</label>
+                                        <div class="col-12">
+                                            <div class="custom-control custom-switch custom-switch-lg">
+                                                <input type="checkbox" class="custom-control-input" id="switch-login-mode">
+                                                <label class="custom-control-label font-weight-bold" for="switch-login-mode" id="label-login-mode">Multi Device</label>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -520,7 +522,7 @@ $this->registerJs(<<<'JS'
 
                     const isMulti = (u.login_mode === 'multi_device');
                     $('#switch-login-mode').prop('checked', isMulti);
-                    $('#label-login-mode').text(isMulti ? 'Multi Device' : 'Single Device');
+                    // $('#label-login-mode').text(isMulti ? 'Multi Device' : 'Single Device');
 
                     renderPasswordHistories(res.password_histories);
                     renderSessions(res.sessions);

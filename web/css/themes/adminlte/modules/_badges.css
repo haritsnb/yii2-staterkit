@@ -1,0 +1,16 @@
+/* ==========================================================================
+   BADGES (Soft Pill Badges)
+   ========================================================================== */
+.badge {
+  font-size: 0.72rem !important;
+  font-weight: 600 !important;
+  padding: 0.3rem 0.6rem !important;
+  border-radius: 9999px !important;
+  letter-spacing: 0.02em;
+}
+.badge-primary { background-color: #eef2ff !important; color: #4f46e5 !important; }
+.badge-success { background-color: #ecfdf5 !important; color: #059669 !important; }
+.badge-warning { background-color: #fffbeb !important; color: #d97706 !important; }
+.badge-danger  { background-color: #fef2f2 !important; color: #e11d48 !important; }
+.badge-info    { background-color: #f0f9ff !important; color: #0284c7 !important; }
+.badge-secondary { background-color: #f1f5f9 !important; color: #475569 !important; }

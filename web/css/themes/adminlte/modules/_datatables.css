@@ -1,0 +1,43 @@
+/* =========================================================================
+   STANDARISASI DATATABLES ADMINLTE (HORIZONTAL SCROLL HANYA PADA TABEL)
+   ========================================================================= */
+
+/* 1. Berikan padding rapi pada baris Search dan Length di bagian atas */
+div.dataTables_wrapper > div.row:first-child {
+    padding: 14px 16px 10px;
+    align-items: center;
+    margin: 0;
+}
+
+/* 2. Jadikan HANYA baris kedua (tabel) yang dapat di-scroll mendatar */
+div.dataTables_wrapper > div.row:nth-child(2) {
+    width: 100%;
+    margin: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    border-top: 1px solid #dee2e6;
+    border-bottom: 1px solid #dee2e6;
+}
+
+div.dataTables_wrapper > div.row:nth-child(2) > div {
+    padding: 0;
+}
+
+/* 3. Berikan padding rapi pada baris Info dan Pagination di bagian bawah */
+div.dataTables_wrapper > div.row:last-child {
+    padding: 12px 16px 14px;
+    align-items: center;
+    margin: 0;
+}
+
+/* 4. Pastikan teks di dalam sel tabel tidak patah/berantakan saat di-scroll */
+table.dataTable th,
+table.dataTable td {
+    white-space: nowrap;
+    vertical-align: middle !important;
+}
+
+/* 5. Khusus kolom nama izin dan deskripsi tetap boleh wrap jika diperlukan */
+table.dataTable td.wrap-text {
+    white-space: normal;
+}
